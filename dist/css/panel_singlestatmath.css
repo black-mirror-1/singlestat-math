@@ -1,0 +1,27 @@
+.singlestatmath-panel {
+  position: relative;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.singlestatmath-panel-value-container {
+  line-height: 1;
+  display: table-cell;
+  vertical-align: middle;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.singlestatmath-panel-prefix {
+  padding-right: 20px;
+}
+
+#flotGagueValue0 {
+  font-weight: bold;
+}
+
+/*# sourceMappingURL=panel_singlestatmath.css.map */

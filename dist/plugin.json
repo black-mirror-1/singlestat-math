@@ -1,0 +1,25 @@
+{
+  "type": "panel",
+  "name": "Singlestat Math",
+  "id": "singlestat-math",
+
+  "info": {
+    "description": "Single Stat panel with math.",
+    "author": {
+      "name": "Sandeep",
+      "url": "email:sandeep.palavalasa@autodesk.com"
+    },
+    "keywords": ["singlestat", "math", "panel"],
+    "logos": {
+      "small": "img/icn-singlestatmath-panel.svg",
+      "large": "img/icn-singlestatmath-panel.svg"
+    },
+    "version": "1.0.0",
+    "updated": "2018-05-08"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "5.0.0",
+    "plugins": [ ]
+  }
+}
