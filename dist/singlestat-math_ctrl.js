@@ -96,6 +96,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                         valueFontSize: '80%',
                         postfixFontSize: '50%',
                         thresholds: '',
+                        math: '',
                         colorBackground: false,
                         colorValue: false,
                         colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
@@ -125,8 +126,8 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                 }
                 SingleStatMathCtrl.prototype.onInitEditMode = function () {
                     this.fontSizes = ['20%', '30%', '50%', '70%', '80%', '100%', '110%', '120%', '150%', '170%', '200%'];
-                    this.addEditorTab('Options', 'public/plugins/singlestat-math/editor.html', 2);
-                    this.addEditorTab('Value Mappings', 'public/plugins/singlestat-math/mappings.html', 3);
+                    this.addEditorTab('Options', 'public/plugins/blackmirror1-singlestat-math-panel/editor.html', 2);
+                    this.addEditorTab('Value Mappings', 'public/plugins/blackmirror1-singlestat-math-panel/mappings.html', 3);
                     this.unitFormats = kbn_1.default.getUnitFormats();
                 };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
@@ -305,13 +306,21 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                             data.valueFormatted = formatFunc(data.value, 0, 0);
                         }
                         else {
-                            if (this.panel.math.length > 0) {
+                            if (this.panel.math.length) {
                                 var mathFunction = this.panel.math;
                                 this.series.forEach(function (element) {
                                     mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[_this.panel.valueName]));
                                 });
-                                data.value = math_1.default.eval(mathFunction);
-                                data.flotpairs = this.series[0].flotpairs;
+                                try {
+                                    data.value = math_1.default.eval(mathFunction);
+                                    data.flotpairs = this.series[0].flotpairs;
+                                }
+                                catch (e) {
+                                    var error = new Error();
+                                    error.message = 'Function evaluation error';
+                                    error.data = 'Function not supported.';
+                                    throw error;
+                                }
                             }
                             else {
                                 data.value = this.series[0].stats[this.panel.valueName];
@@ -674,7 +683,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                         ctrl.renderingCompleted();
                     });
                 };
-                SingleStatMathCtrl.templateUrl = 'public/plugins/singlestat-math/module.html';
+                SingleStatMathCtrl.templateUrl = 'public/plugins/blackmirror1-singlestat-math-panel/module.html';
                 return SingleStatMathCtrl;
             }(sdk_1.MetricsPanelCtrl));
             exports_1("SingleStatMathCtrl", SingleStatMathCtrl);

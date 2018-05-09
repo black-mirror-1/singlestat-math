@@ -1,5 +1,5 @@
 {
-  "name": "singlestatmath-panel",
+  "name": "blackmirror1-singlestat-math-panel",
   "private": true,
   "version": "1.0.0",
   "description": "Single stat panel with math functionality using aliases across more then one series",

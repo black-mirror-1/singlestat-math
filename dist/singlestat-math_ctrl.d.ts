@@ -49,6 +49,7 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         valueFontSize: string;
         postfixFontSize: string;
         thresholds: string;
+        math: string;
         colorBackground: boolean;
         colorValue: boolean;
         colors: string[];

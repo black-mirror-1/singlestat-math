@@ -1,13 +1,13 @@
 {
   "type": "panel",
   "name": "Singlestat Math",
-  "id": "singlestat-math",
+  "id": "blackmirror1-singlestat-math-panel",
 
   "info": {
     "description": "Single Stat panel with math.",
     "author": {
       "name": "Sandeep",
-      "url": "email:sandeep.palavalasa@autodesk.com"
+      "url": "https://github.com/black-mirror-1/singlestat-math"
     },
     "keywords": ["singlestat", "math", "panel"],
     "logos": {
