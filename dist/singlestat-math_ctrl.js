@@ -282,7 +282,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                 SingleStatMathCtrl.prototype.setValues = function (data) {
                     var _this = this;
                     data.flotpairs = [];
-                    if (this.series.length > 1) {
+                    if (this.series.length > 1 || this.panel.math.length) {
                         var lastPoint_1 = [];
                         var lastValue_1 = [];
                         this.series.forEach(function (element, index) {
@@ -312,6 +312,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                                     mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[_this.panel.valueName]));
                                 });
                                 try {
+                                    mathFunction = mathFunction.replace(new RegExp('[A-za-z]+', 'gi'), String(0));
                                     data.value = math_1.default.eval(mathFunction);
                                     data.flotpairs = this.series[0].flotpairs;
                                 }
@@ -334,7 +335,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                         data.scopedVars = lodash_1.default.extend({}, this.panel.scopedVars);
                         data.scopedVars['__name'] = { value: this.series[0].label };
                     }
-                    if (this.series && this.series.length > 0 && this.series.length < 2) {
+                    if (this.series && this.series.length > 0 && this.series.length < 2 && !this.panel.math.length) {
                         var lastPoint = lodash_1.default.last(this.series[0].datapoints);
                         var lastValue = lodash_1.default.isArray(lastPoint) ? lastPoint[0] : null;
                         if (this.panel.valueName === 'name') {

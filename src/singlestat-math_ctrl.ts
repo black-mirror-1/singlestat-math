@@ -285,7 +285,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   setValues(data) {
     data.flotpairs = [];
 
-    if (this.series.length > 1) {
+    if (this.series.length > 1 || this.panel.math.length) {
       let lastPoint = [];
       let lastValue = [];
       this.series.forEach((element, index) => {
@@ -314,6 +314,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
             mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
           });
           try {
+            mathFunction = mathFunction.replace(new RegExp('[A-za-z]+', 'gi'), String(0));
             data.value = math.eval(mathFunction);
             data.flotpairs = this.series[0].flotpairs;
           } catch (e) {
@@ -340,7 +341,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     }
 
-    if (this.series && this.series.length > 0 && this.series.length < 2) {
+    if (this.series && this.series.length > 0 && this.series.length < 2 && !this.panel.math.length) {
       let lastPoint = _.last(this.series[0].datapoints);
       let lastValue = _.isArray(lastPoint) ? lastPoint[0] : null;
 
