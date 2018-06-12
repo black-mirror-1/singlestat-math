@@ -1,6 +1,8 @@
 /// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import './lib/flot/jquery.flot';
 import './lib/flot/jquery.flot.gauge';
+import './lib/flot/jquery.flot.time';
+import './lib/flot/jquery.flot.crosshair';
 import './css/panel_singlestatmath.css!';
 import { MetricsPanelCtrl } from 'app/plugins/sdk';
 declare class SingleStatMathCtrl extends MetricsPanelCtrl {

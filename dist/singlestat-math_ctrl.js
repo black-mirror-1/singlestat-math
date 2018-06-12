@@ -1,4 +1,4 @@
-System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquery.flot.gauge", "./css/panel_singlestatmath.css!", "./lib/mathjs/math", "app/core/utils/kbn", "app/core/config", "app/core/time_series2", "app/plugins/sdk"], function (exports_1, context_1) {
+System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquery.flot.gauge", "./lib/flot/jquery.flot.time", "./lib/flot/jquery.flot.crosshair", "./css/panel_singlestatmath.css!", "./lib/mathjs/math", "app/core/utils/kbn", "app/core/config", "app/core/time_series2", "app/plugins/sdk"], function (exports_1, context_1) {
     "use strict";
     var __extends = (this && this.__extends) || (function () {
         var extendStatics = Object.setPrototypeOf ||
@@ -10,6 +10,7 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
             d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
         };
     })();
+    var lodash_1, jquery_1, math_1, kbn_1, config_1, time_series2_1, sdk_1, SingleStatMathCtrl;
     var __moduleName = context_1 && context_1.id;
     function getColorForValue(data, value) {
         if (!lodash_1.default.isFinite(value)) {
@@ -23,7 +24,6 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
         return lodash_1.default.first(data.colorMap);
     }
     exports_1("getColorForValue", getColorForValue);
-    var lodash_1, jquery_1, math_1, kbn_1, config_1, time_series2_1, sdk_1, SingleStatMathCtrl;
     return {
         setters: [
             function (lodash_1_1) {
@@ -37,6 +37,10 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
             function (_2) {
             },
             function (_3) {
+            },
+            function (_4) {
+            },
+            function (_5) {
             },
             function (math_1_1) {
                 math_1 = math_1_1;
