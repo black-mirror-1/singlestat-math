@@ -16,6 +16,10 @@ In the math field you can use the alias names to perform math across series.
 
 ## Changelog
 
+## 1.1.0
+* Fixed missing flot library crashing graph panel.
+* Updated dependencies.
+
 ## 1.0.0
 
 * Added math options if multiple queries are used.
