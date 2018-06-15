@@ -321,10 +321,8 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                                     data.flotpairs = this.series[0].flotpairs;
                                 }
                                 catch (e) {
-                                    var error = new Error();
-                                    error.message = 'Function evaluation error';
-                                    error.data = 'Function not supported.';
-                                    throw error;
+                                    data.value = 0;
+                                    data.flotpairs = [0, 0];
                                 }
                             }
                             else {
@@ -336,8 +334,10 @@ System.register(["lodash", "jquery", "./lib/flot/jquery.flot", "./lib/flot/jquer
                             data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
                             data.valueRounded = kbn_1.default.roundValue(data.value, decimalInfo.decimals);
                         }
-                        data.scopedVars = lodash_1.default.extend({}, this.panel.scopedVars);
-                        data.scopedVars['__name'] = { value: this.series[0].label };
+                        if (this.series && this.series.length > 0) {
+                            data.scopedVars = lodash_1.default.extend({}, this.panel.scopedVars);
+                            data.scopedVars['__name'] = { value: this.series[0].label };
+                        }
                     }
                     if (this.series && this.series.length > 0 && this.series.length < 2 && !this.panel.math.length) {
                         var lastPoint = lodash_1.default.last(this.series[0].datapoints);

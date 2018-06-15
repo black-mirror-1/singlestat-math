@@ -320,10 +320,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
             data.value = math.eval(mathFunction);
             data.flotpairs = this.series[0].flotpairs;
           } catch (e) {
-            var error: any = new Error();
-            error.message = 'Function evaluation error';
-            error.data = 'Function not supported.';
-            throw error;
+            //Error evaluating function. Defaulting to zero.
+            data.value = 0;
+            data.flotpairs = [0,0];
           }
         }
         else{
@@ -338,8 +337,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
 
       // Add $__name variable for using in prefix or postfix
-      data.scopedVars = _.extend({}, this.panel.scopedVars);
-      data.scopedVars['__name'] = { value: this.series[0].label };
+      if(this.series && this.series.length > 0){
+        data.scopedVars = _.extend({}, this.panel.scopedVars);
+        data.scopedVars['__name'] = { value: this.series[0].label };
+      }
 
     }
 
