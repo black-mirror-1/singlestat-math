@@ -320,11 +320,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
             data.value = math.eval(mathFunction);
             data.flotpairs = this.series[0].flotpairs;
           } catch (e) {
-            // var error: any = new Error();
-            // error.message = 'Function evaluation error';
-            // error.data = 'Function not supported.';
-            // throw error;
-            // alert('flotpairs: ' + this.series[0].flotpairs);
+            //Error evaluating function. Defaulting to zero.
             data.value = 0;
             data.flotpairs = [0,0];
           }
