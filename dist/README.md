@@ -16,6 +16,9 @@ In the math field you can use the alias names to perform math across series.
 
 ## Changelog
 
+## 1.1.1
+* Changed function evaluation error handling to set results to zero
+
 ## 1.1.0
 * Fixed missing flot library crashing graph panel.
 * Updated dependencies.
