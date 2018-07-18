@@ -2,10 +2,10 @@
 
 import _ from 'lodash';
 import $ from 'jquery';
-import './lib/flot/jquery.flot';
+import 'jquery.flot';
 import './lib/flot/jquery.flot.gauge';
-import './lib/flot/jquery.flot.time';
-import './lib/flot/jquery.flot.crosshair';
+import 'jquery.flot.time';
+import 'jquery.flot.crosshair';
 import './css/panel_singlestatmath.css!';
 import math from './lib/mathjs/math'
 
