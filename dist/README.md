@@ -16,6 +16,9 @@ In the math field you can use the alias names to perform math across series.
 
 ## Changelog
 
+## 1.1.2
+* Merged [PR](https://github.com/black-mirror-1/singlestat-math/pull/5) to remove importing own flot plugins.
+
 ## 1.1.1
 * Changed function evaluation error handling to set results to zero
 
