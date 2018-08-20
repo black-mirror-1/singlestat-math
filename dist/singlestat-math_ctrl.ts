@@ -64,6 +64,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     thresholds: '',
     math: '',
     colorBackground: false,
+    circleBackground: false,
+    valueMappingColorBackground: '#787879',
     colorValue: false,
     colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
     sparkline: {
@@ -669,9 +671,13 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       data.colorMap = panel.colors;
 
       var body = panel.gauge.show ? '' : getBigValueHtml();
-
+      var color = '';
       if (panel.colorBackground) {
-        var color = getColorForValue(data, data.value);
+        if (data.value == null) {
+          color = panel.valueMappingColorBackground;
+        } else {
+          color = getColorForValue(data, data.value);
+        }
         if (color) {
           $panelContainer.css('background-color', color);
           if (scope.fullscreen) {
@@ -683,6 +689,34 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       } else {
         $panelContainer.css('background-color', '');
         elem.css('background-color', '');
+        panel.circleBackground = false;
+      }
+      // Convert to Circle
+      if (panel.circleBackground) {
+        let circleHeight = $($panelContainer.height())[0] - 27;
+        let circleWidth = $($panelContainer.width())[0];
+
+        $($panelContainer).addClass('circle');
+        $panelContainer.css('background-color', '');
+
+        if (circleWidth >= circleHeight) {
+          elem.css({
+            'border-radius': 50 + '%',
+            'width': circleHeight + 'px',
+            'height': circleHeight + 'px',
+            'background-color': color
+          });
+        } else {
+          elem.css({
+            'border-radius': 50 + '%',
+            'width': circleWidth + 'px',
+            'height': circleWidth + 'px',
+            'background-color': color
+          });
+        }
+      } else {
+        $($panelContainer.removeClass('circle'));
+        elem.css({ 'border-radius': '0', width: '', height: '' });
       }
 
       elem.html(body);

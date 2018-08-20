@@ -53,6 +53,8 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         thresholds: string;
         math: string;
         colorBackground: boolean;
+        circleBackground: boolean;
+        valueMappingColorBackground: string;
         colorValue: boolean;
         colors: string[];
         sparkline: {
