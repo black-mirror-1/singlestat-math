@@ -57,27 +57,44 @@
     <div class="gf-form-inline">
       <gf-form-switch class="gf-form" label-class="width-8" label="Background" checked="ctrl.panel.colorBackground" on-change="ctrl.render()"></gf-form-switch>
       <gf-form-switch class="gf-form" label-class="width-8" label="Circle" checked="ctrl.panel.circleBackground" on-change="ctrl.render()"></gf-form-switch>
-      <gf-form-switch class="gf-form" label-class="width-4" label="Value" checked="ctrl.panel.colorValue" on-change="ctrl.render()"></gf-form-switch>
+      <gf-form-switch class="gf-form" label-class="width-8" label="Hide Value" checked="ctrl.panel.colorValue" on-change="ctrl.render()"></gf-form-switch>
     </div>
-    <div class="gf-form-inline">
-      <div class="gf-form max-width-21">
-        <label class="gf-form-label width-8">Thresholds
-          <tip>Define two threshold values&lt;br /&gt; 50,80 will produce: &lt;50 = Green, 50:80 = Yellow, &gt;80 = Red</tip>
-        </label>
-        <input type="text" class="gf-form-input" ng-model="ctrl.panel.thresholds" ng-blur="ctrl.render()" placeholder="50,80"></input>
-      </div>
+		<div class="gf-form">
+			<label class="gf-form-label width-10">Default Color</label>
+			<label class="gf-form-label">
+        <spectrum-picker ng-model="ctrl.panel.defaultColor" ng-change="ctrl.render()"/>
     </div>
+    
+		<div class="gf-form" ng-repeat="threshold in ctrl.panel.thresholds">
+      <label class="gf-form-label width-10">Threshold {{$index + 1}}</label>
+			<input type="text" class="input-small gf-form-input width-8" ng-model="threshold.value" ng-change="ctrl.render()"/>
+			<label class="gf-form-label">
+        <spectrum-picker ng-model="threshold.color" ng-change="ctrl.render()"/>
+			</label>
+
+			<label class="gf-form-label">
+				<a class="pointer" ng-click="ctrl.onEditorRemoveThreshold($index)">
+					<i class="fa fa-trash"/>
+				</a>
+			</label>
+		</div>
+
+		<div class="gf-form">
+			<label class="gf-form-label">
+				<a class="pointer" ng-click="ctrl.onEditorAddThreshold()">
+					Add threshold
+				</a>
+			</label>
+    </div>
+    
     <div class="gf-form">
-      <label class="gf-form-label width-8">Colors</label>
-      <span class="gf-form-label" ng-repeat="color in ctrl.panel.colors track by $index">
-        <color-picker color="color" onChange="ctrl.onColorChange($index)"></color-picker>
-      </span>
-      <span class="gf-form-label">
-        <a  ng-click="ctrl.invertColorOrder()">
-          Invert
-        </a>
-      </span>
-    </div>
+        <label class="gf-form-label">
+          <tip>Reverses thresholds</tip>
+          <a class="pointer" ng-model="threshold.value" ng-click="ctrl.reverseMyThreshes(ctrl)"> 
+            Invert
+          </a>
+        </label>
+      </div>
   </div>
 
   <div class="section gf-form-group">
@@ -92,7 +109,7 @@
     </div>
   </div>
 
-  <div class="section gf-form-group">
+  <!-- <div class="section gf-form-group">
     <h5 class="section-heading">Spark lines</h5>
     <gf-form-switch class="gf-form" label-class="width-9" label="Show" checked="ctrl.panel.sparkline.show" on-change="ctrl.render()"></gf-form-switch>
     <div ng-if="ctrl.panel.sparkline.show">
@@ -131,5 +148,5 @@
       <gf-form-switch class="gf-form" label-class="width-10" switch-class="max-width-6" label="Threshold labels" checked="ctrl.panel.gauge.thresholdLabels" on-change="ctrl.render()"></gf-form-switch>
       <gf-form-switch class="gf-form" label-class="width-10" switch-class="max-width-6" label="Threshold markers" checked="ctrl.panel.gauge.thresholdMarkers" on-change="ctrl.render()"></gf-form-switch>
     </div>
-  </div>
+  </div> -->
 </div>

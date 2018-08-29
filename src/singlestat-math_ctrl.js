@@ -55,6 +55,8 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             interval: null,
             targets: [{}],
             cacheTimeout: null,
+            defaultColor: 'rgb(117, 117, 117)',
+            thresholds: [],
             format: 'none',
             prefix: '',
             postfix: '',
@@ -68,13 +70,11 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             prefixFontSize: '50%',
             valueFontSize: '80%',
             postfixFontSize: '50%',
-            thresholds: '',
             math: '',
             colorBackground: false,
-            valueMappingColorBackground: '#787879',
             circleBackground: false,
+            valueMappingColorBackground: '#787879',
             colorValue: false,
-            colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
             sparkline: {
                 show: false,
                 full: false,
@@ -111,6 +111,24 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
     };
     SingleStatMathCtrl.prototype.onDataError = function (err) {
         this.onDataReceived([]);
+    };
+    SingleStatMathCtrl.prototype.onEditorRemoveThreshold = function (index) {
+        this.panel.thresholds.splice(index, 1);
+        this.render();
+    };
+    SingleStatMathCtrl.prototype.onEditorAddThreshold = function () {
+        this.panel.thresholds.push({ color: this.panel.defaultColor });
+        this.render();
+    };
+    SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
+        control.panel.thresholds = _.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
+        console.log("Sorted: " + control.panel.thresholds);
+        this.$scope.ctrl.refresh();
+    };
+    SingleStatMathCtrl.prototype.reverseMyThreshes = function (control) {
+        control.panel.thresholds = _.reverse(control.panel.thresholds);
+        console.log("Sorted: " + control.panel.thresholds);
+        this.$scope.ctrl.refresh();
     };
     SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
         var data = {};
@@ -189,30 +207,6 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
     };
     SingleStatMathCtrl.prototype.canChangeFontSize = function () {
         return this.panel.gauge.show;
-    };
-    SingleStatMathCtrl.prototype.setColoring = function (options) {
-        if (options.background) {
-            this.panel.colorValue = false;
-            this.panel.colors = ['rgba(71, 212, 59, 0.4)', 'rgba(245, 150, 40, 0.73)', 'rgba(225, 40, 40, 0.59)'];
-        }
-        else {
-            this.panel.colorBackground = false;
-            this.panel.colors = ['rgba(50, 172, 45, 0.97)', 'rgba(237, 129, 40, 0.89)', 'rgba(245, 54, 54, 0.9)'];
-        }
-        this.render();
-    };
-    SingleStatMathCtrl.prototype.invertColorOrder = function () {
-        var tmp = this.panel.colors[0];
-        this.panel.colors[0] = this.panel.colors[2];
-        this.panel.colors[2] = tmp;
-        this.render();
-    };
-    SingleStatMathCtrl.prototype.onColorChange = function (panelColorIndex) {
-        var _this = this;
-        return function (color) {
-            _this.panel.colors[panelColorIndex] = color;
-            _this.render();
-        };
     };
     SingleStatMathCtrl.prototype.onSparklineColorChange = function (newColor) {
         this.panel.sparkline.lineColor = newColor;
@@ -424,7 +418,7 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             }
             var color = getColorForValue(data, value);
             if (color) {
-                return '<span style="color:' + color + '">' + valueString + '</span>';
+                return '<span></span>';
             }
             return valueString;
         }
@@ -593,18 +587,15 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
                 return;
             }
             data = ctrl.data;
-            // get thresholds
-            data.thresholds = panel.thresholds.split(',').map(function (strVale) {
-                return Number(strVale.trim());
-            });
-            data.colorMap = panel.colors;
-            var color = '';
+
             var body = panel.gauge.show ? '' : getBigValueHtml();
+            var color = '';
             if (panel.colorBackground) {
                 if (data.value == null) {
-                    color = panel.valueMappingColorBackground;
-                } else {
-                    color = getColorForValue(data, data.value);
+                    color = panel.valueMappingColorBackground; //null or grey value
+                }
+                else {
+                    color = getColorForValue(panel.thresholds, data.value);
                 }
                 if (color) {
                     $panelContainer.css('background-color', color);
@@ -621,34 +612,33 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
                 elem.css('background-color', '');
                 panel.circleBackground = false;
             }
-
+            // Convert to Circle
             if (panel.circleBackground) {
-                let circleHeight = $($panelContainer.height())[0] - 27;
-                let circleWidth = $($panelContainer.width())[0];
-        
-                $($panelContainer).addClass('circle');
+                var circleHeight = jquery_1["default"]($panelContainer.height())[0] - 27;
+                var circleWidth = jquery_1["default"]($panelContainer.width())[0];
+                jquery_1["default"]($panelContainer).addClass('circle');
                 $panelContainer.css('background-color', '');
-        
                 if (circleWidth >= circleHeight) {
-                  elem.css({
-                    'border-radius': '50%',
-                    width: circleHeight + 'px',
-                    height: circleHeight + 'px',
-                    'background-color': color,
-                  });
-                } else {
-                  elem.css({
-                    'border-radius': '50%',
-                    width: circleWidth + 'px',
-                    height: circleWidth + 'px',
-                    'background-color': color,
-                  });
+                    elem.css({
+                        'border-radius': 50 + '%',
+                        'width': circleHeight + 'px',
+                        'height': circleHeight + 'px',
+                        'background-color': color
+                    });
                 }
-            } else {
-                $($panelContainer).removeClass('circle');
+                else {
+                    elem.css({
+                        'border-radius': 50 + '%',
+                        'width': circleWidth + 'px',
+                        'height': circleWidth + 'px',
+                        'background-color': color
+                    });
+                }
+            }
+            else {
+                jquery_1["default"]($panelContainer.removeClass('circle'));
                 elem.css({ 'border-radius': '0', width: '', height: '' });
             }
-
             elem.html(body);
             if (panel.sparkline.show) {
                 addSparkline();
@@ -716,16 +706,21 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
 }(sdk_1.MetricsPanelCtrl));
 exports.SingleStatMathCtrl = SingleStatMathCtrl;
 exports.PanelCtrl = SingleStatMathCtrl;
-function getColorForValue(data, value) {
-    if (!lodash_1["default"].isFinite(value)) {
-        return null;
+function getColorForValue(thresholds, value) {
+    var color = this.defaultColor;
+    if (value === null) {
+        return color;
     }
-    for (var i = data.thresholds.length; i > 0; i--) {
-        if (value >= data.thresholds[i - 1]) {
-            return data.colorMap[i];
-        }
-    }
-    return lodash_1["default"].first(data.colorMap);
+    for (let i = thresholds.length - 1; i >= 0; i--) {
+        let aThreshold = thresholds[i];
+          if (value >= aThreshold.value) {
+            return aThreshold.color;
+          } else {
+              color = this.defaultColor;
+          }
+        //color = aThreshold.color;
+      }
+    return color;
 }
 exports.getColorForValue = getColorForValue;
 // export { SingleStatCtrl, SingleStatCtrl as PanelCtrl, getColorForValue };

@@ -48,6 +48,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     interval: null,
     targets: [{}],
     cacheTimeout: null,
+    defaultColor: 'rgb(117, 117, 117)',
+    thresholds: [],
     format: 'none',
     prefix: '',
     postfix: '',
@@ -61,13 +63,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     prefixFontSize: '50%',
     valueFontSize: '80%',
     postfixFontSize: '50%',
-    thresholds: '',
     math: '',
     colorBackground: false,
     circleBackground: false,
     valueMappingColorBackground: '#787879',
     colorValue: false,
-    colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
     sparkline: {
       show: false,
       full: false,
@@ -112,6 +112,28 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   onDataError(err) {
     this.onDataReceived([]);
+  }
+
+  onEditorRemoveThreshold(index) {
+    this.panel.thresholds.splice(index, 1)
+    this.render();
+  }
+
+  onEditorAddThreshold() {
+    this.panel.thresholds.push({color: this.panel.defaultColor})
+    this.render();
+  }
+
+  sortMyThreshes(control) {
+    control.panel.thresholds = _.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
+    console.log("Sorted: " + control.panel.thresholds);
+    this.$scope.ctrl.refresh();
+  }
+
+  reverseMyThreshes(control) {
+    control.panel.thresholds = _.reverse(control.panel.thresholds);
+    console.log("Sorted: " + control.panel.thresholds);
+    this.$scope.ctrl.refresh();
   }
 
   onDataReceived(dataList) {
@@ -208,31 +230,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   canChangeFontSize() {
     return this.panel.gauge.show;
-  }
-
-  setColoring(options) {
-    if (options.background) {
-      this.panel.colorValue = false;
-      this.panel.colors = ['rgba(71, 212, 59, 0.4)', 'rgba(245, 150, 40, 0.73)', 'rgba(225, 40, 40, 0.59)'];
-    } else {
-      this.panel.colorBackground = false;
-      this.panel.colors = ['rgba(50, 172, 45, 0.97)', 'rgba(237, 129, 40, 0.89)', 'rgba(245, 54, 54, 0.9)'];
-    }
-    this.render();
-  }
-
-  invertColorOrder() {
-    var tmp = this.panel.colors[0];
-    this.panel.colors[0] = this.panel.colors[2];
-    this.panel.colors[2] = tmp;
-    this.render();
-  }
-
-  onColorChange(panelColorIndex) {
-    return color => {
-      this.panel.colors[panelColorIndex] = color;
-      this.render();
-    };
   }
 
   onSparklineColorChange(newColor) {
@@ -463,9 +460,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return valueString;
       }
 
-      var color = getColorForValue(data, value);
+      var color = getColorForValue(panel.defaultColor, data, value);
       if (color) {
-        return '<span style="color:' + color + '">' + valueString + '</span>';
+        return '<span></span>';
       }
 
       return valueString;
@@ -576,7 +573,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
               width: thresholdMarkersWidth,
             },
             value: {
-              color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
+              color: panel.colorValue ? getColorForValue(panel.defaultColor, data, data.valueRounded) : null,
               formatter: function() {
                 return getValueText();
               },
@@ -664,19 +661,13 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
       data = ctrl.data;
 
-      // get thresholds
-      data.thresholds = panel.thresholds.split(',').map(function(strVale) {
-        return Number(strVale.trim());
-      });
-      data.colorMap = panel.colors;
-
       var body = panel.gauge.show ? '' : getBigValueHtml();
       var color = '';
       if (panel.colorBackground) {
         if (data.value == null) {
-          color = panel.valueMappingColorBackground;
+          color = panel.valueMappingColorBackground; //null or grey value
         } else {
-          color = getColorForValue(data, data.value);
+          color = getColorForValue(panel.defaultColor, panel.thresholds, data.value);
         }
         if (color) {
           $panelContainer.css('background-color', color);
@@ -795,16 +786,21 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 }
 
-function getColorForValue(data, value) {
-  if (!_.isFinite(value)) {
-    return null;
+function getColorForValue(defaultColor, thresholds, value) {
+  let color = defaultColor;
+  if (value === null) {
+    return color;
   }
-  for (var i = data.thresholds.length; i > 0; i--) {
-    if (value >= data.thresholds[i - 1]) {
-      return data.colorMap[i];
-    }
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    let aThreshold = thresholds[i];
+      if (value >= aThreshold.value) {
+        return aThreshold.color;
+      } else {
+        color = defaultColor;
+      }
+    //color = aThreshold.color;
   }
-  return _.first(data.colorMap);
+  return color;
 }
 
 export {SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue}
