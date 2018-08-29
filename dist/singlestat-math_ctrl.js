@@ -491,15 +491,15 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         };
                         plotCanvas.css(plotCss);
                         var thresholds = [];
-                        for (var i = 0; i < data.thresholds.length; i++) {
+                        for (var i = 0; i < panel.thresholds.length; i++) {
                             thresholds.push({
-                                value: data.thresholds[i],
-                                color: data.colorMap[i],
+                                value: panel.thresholds[i].value,
+                                color: panel.thresholds[i].color,
                             });
                         }
                         thresholds.push({
                             value: panel.gauge.maxValue,
-                            color: data.colorMap[data.colorMap.length - 1],
+                            color: panel.thresholds[panel.thresholds.length - 1],
                         });
                         var bgColor = config_1.default.bootData.user.lightTheme ? 'rgb(230,230,230)' : 'rgb(38,38,38)';
                         var fontScale = parseInt(panel.valueFontSize) / 100;
