@@ -26,6 +26,8 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         interval: any;
         targets: {}[];
         cacheTimeout: any;
+        defaultColor: string;
+        thresholds: any[];
         format: string;
         prefix: string;
         postfix: string;
@@ -50,13 +52,11 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         prefixFontSize: string;
         valueFontSize: string;
         postfixFontSize: string;
-        thresholds: string;
         math: string;
         colorBackground: boolean;
         circleBackground: boolean;
         valueMappingColorBackground: string;
         colorValue: boolean;
-        colors: string[];
         sparkline: {
             show: boolean;
             full: boolean;
@@ -76,15 +76,16 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     onInitEditMode(): void;
     setUnitFormat(subItem: any): void;
     onDataError(err: any): void;
+    onEditorRemoveThreshold(index: any): void;
+    onEditorAddThreshold(): void;
+    sortMyThreshes(control: any): void;
+    reverseMyThreshes(control: any): void;
     onDataReceived(dataList: any): void;
     seriesHandler(seriesData: any): any;
     tableHandler(tableData: any): any[];
     setTableColumnToSensibleDefault(tableData: any): void;
     setTableValues(tableData: any, data: any): void;
     canChangeFontSize(): any;
-    setColoring(options: any): void;
-    invertColorOrder(): void;
-    onColorChange(panelColorIndex: any): (color: any) => void;
     onSparklineColorChange(newColor: any): void;
     onSparklineFillChange(newColor: any): void;
     getDecimalsForValue(value: any): any;
@@ -96,5 +97,5 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     addRangeMap(): void;
     link(scope: any, elem: any, attrs: any, ctrl: any): void;
 }
-declare function getColorForValue(data: any, value: any): any;
+declare function getColorForValue(defaultColor: any, thresholds: any, value: any): any;
 export { SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue };
