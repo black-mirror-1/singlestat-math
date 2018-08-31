@@ -16,6 +16,9 @@ In the math field you can use the alias names to perform math across series.
 
 ## Changelog
 
+## 1.1.4
+* Merged [PR](https://github.com/black-mirror-1/singlestat-math/pull/9) to add granular threshold options.
+
 ## 1.1.3
 * Merged [PR](https://github.com/black-mirror-1/singlestat-math/pull/6) to add circle shape as background option.
 

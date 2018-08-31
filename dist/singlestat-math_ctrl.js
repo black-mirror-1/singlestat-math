@@ -97,7 +97,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         prefix: '',
                         postfix: '',
                         nullText: null,
-                        valueMaps: [{ value: 'null', op: '=', text: 'N/A' }],
+                        valueMaps: [{ value: 'null', op: '=', text: 'No data' }],
                         mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
                         rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
                         mappingType: 1,
