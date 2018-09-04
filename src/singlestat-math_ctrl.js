@@ -47,6 +47,11 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             { value: 'range', text: 'Range' },
             { value: 'last_time', text: 'Time of last point' },
         ];
+
+        _this.sortOrderOptions = [
+            { value: 'asc', text: 'asc'},
+            { value: 'desc', text: 'desc'},
+        ];
         // Set and populate defaults
         _this.panelDefaults = {
             links: [],
@@ -57,6 +62,7 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             cacheTimeout: null,
             defaultColor: 'rgb(117, 117, 117)',
             thresholds: [],
+            sortOrder: 'asc',
             format: 'none',
             prefix: '',
             postfix: '',
@@ -121,14 +127,14 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
         this.render();
     };
     SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
-        control.panel.thresholds = _.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
-        console.log("Sorted: " + control.panel.thresholds);
-        this.$scope.ctrl.refresh();
-    };
-    SingleStatMathCtrl.prototype.reverseMyThreshes = function (control) {
-        control.panel.thresholds = _.reverse(control.panel.thresholds);
-        console.log("Sorted: " + control.panel.thresholds);
-        this.$scope.ctrl.refresh();
+        if(this.panel.sortOrder === 'asc') {
+            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+            console.log("Sorted: " + control.panel.thresholds);
+          } else if (this.panel.sortOrder === 'desc') {
+            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+            console.log("Sorted: " + control.panel.thresholds);
+          }
+          this.$scope.ctrl.refresh();
     };
     SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
         var data = {};
@@ -707,19 +713,17 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
 exports.SingleStatMathCtrl = SingleStatMathCtrl;
 exports.PanelCtrl = SingleStatMathCtrl;
 function getColorForValue(thresholds, value) {
-    var color = this.defaultColor;
+    var color = '';
     if (value === null) {
         return color;
     }
     for (let i = thresholds.length - 1; i >= 0; i--) {
         let aThreshold = thresholds[i];
+        color = aThreshold.color;
           if (value >= aThreshold.value) {
             return aThreshold.color;
-          } else {
-              color = this.defaultColor;
           }
-        //color = aThreshold.color;
-      }
+    }
     return color;
 }
 exports.getColorForValue = getColorForValue;

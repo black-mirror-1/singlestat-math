@@ -39,6 +39,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     { value: 'last_time', text: 'Time of last point' },
   ];
   tableColumnOptions: any;
+  sortOrderOptions: any[] = [
+    { value: 'asc', text: 'asc'},
+    { value: 'desc', text: 'desc'},
+  ];
 
   // Set and populate defaults
   panelDefaults = {
@@ -51,10 +55,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     defaultColor: 'rgb(117, 117, 117)',
     thresholds: [],
     format: 'none',
+    sortOrder: 'asc',
     prefix: '',
     postfix: '',
     nullText: null,
-    valueMaps: [{ value: 'null', op: '=', text: 'N/A' }],
+    valueMaps: [{ value: 'null', op: '=', text: 'No data' }],
     mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
     rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
     mappingType: 1,
@@ -125,14 +130,13 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   sortMyThreshes(control) {
-    control.panel.thresholds = _.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
-    console.log("Sorted: " + control.panel.thresholds);
-    this.$scope.ctrl.refresh();
-  }
-
-  reverseMyThreshes(control) {
-    control.panel.thresholds = _.reverse(control.panel.thresholds);
-    console.log("Sorted: " + control.panel.thresholds);
+    if(this.panel.sortOrder === 'asc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+      console.log("Sorted: " + control.panel.thresholds);
+    } else if (this.panel.sortOrder === 'desc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+      console.log("Sorted: " + control.panel.thresholds);
+    }
     this.$scope.ctrl.refresh();
   }
 
@@ -460,7 +464,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return valueString;
       }
 
-      var color = getColorForValue(panel.defaultColor, data, value);
+      var color = getColorForValue(data, value);
       if (color) {
         return '<span></span>';
       }
@@ -573,7 +577,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
               width: thresholdMarkersWidth,
             },
             value: {
-              color: panel.colorValue ? getColorForValue(panel.defaultColor, data, data.valueRounded) : null,
+              color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
               formatter: function() {
                 return getValueText();
               },
@@ -667,7 +671,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         if (data.value == null) {
           color = panel.valueMappingColorBackground; //null or grey value
         } else {
-          color = getColorForValue(panel.defaultColor, panel.thresholds, data.value);
+          color = getColorForValue(panel.thresholds, data.value);
         }
         if (color) {
           $panelContainer.css('background-color', color);
@@ -786,19 +790,17 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 }
 
-function getColorForValue(defaultColor, thresholds, value) {
-  let color = defaultColor;
+function getColorForValue(thresholds, value) {
+  let color = '';
   if (value === null) {
     return color;
   }
   for (let i = thresholds.length - 1; i >= 0; i--) {
     let aThreshold = thresholds[i];
+    color = aThreshold.color;
       if (value >= aThreshold.value) {
         return aThreshold.color;
-      } else {
-        color = defaultColor;
       }
-    //color = aThreshold.color;
   }
   return color;
 }

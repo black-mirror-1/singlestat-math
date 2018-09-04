@@ -59,11 +59,6 @@
       <gf-form-switch class="gf-form" label-class="width-8" label="Circle" checked="ctrl.panel.circleBackground" on-change="ctrl.render()"></gf-form-switch>
       <gf-form-switch class="gf-form" label-class="width-8" label="Hide Value" checked="ctrl.panel.colorValue" on-change="ctrl.render()"></gf-form-switch>
     </div>
-		<div class="gf-form">
-			<label class="gf-form-label width-10">Default Color</label>
-			<label class="gf-form-label">
-        <spectrum-picker ng-model="ctrl.panel.defaultColor" ng-change="ctrl.render()"/>
-    </div>
     
 		<div class="gf-form" ng-repeat="threshold in ctrl.panel.thresholds">
       <label class="gf-form-label width-10">Threshold {{$index + 1}}</label>
@@ -89,12 +84,13 @@
     
     <div class="gf-form">
         <label class="gf-form-label">
-          <tip>Reverses thresholds</tip>
-          <a class="pointer" ng-model="threshold.value" ng-click="ctrl.reverseMyThreshes(ctrl)"> 
-            Invert
+          <tip>Sorts thresholds</tip>
+          <a class="pointer" ng-model="threshold.value" ng-click="ctrl.sortMyThreshes(ctrl)"> 
+            Sort
           </a>
         </label>
-      </div>
+        <select class="gf-form-input width-6" ng-model="ctrl.panel.sortOrder" ng-options="s.value as s.text for s in ctrl.sortOrderOptions" ng-change="ctrl.refresh()"></select>
+    </div>
   </div>
 
   <div class="section gf-form-group">

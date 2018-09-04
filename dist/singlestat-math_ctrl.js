@@ -12,18 +12,16 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
     })();
     var lodash_1, jquery_1, math_1, kbn_1, config_1, time_series2_1, sdk_1, SingleStatMathCtrl;
     var __moduleName = context_1 && context_1.id;
-    function getColorForValue(defaultColor, thresholds, value) {
-        var color = defaultColor;
+    function getColorForValue(thresholds, value) {
+        var color = '';
         if (value === null) {
             return color;
         }
         for (var i = thresholds.length - 1; i >= 0; i--) {
             var aThreshold = thresholds[i];
+            color = aThreshold.color;
             if (value >= aThreshold.value) {
                 return aThreshold.color;
-            }
-            else {
-                color = defaultColor;
             }
         }
         return color;
@@ -84,6 +82,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         { value: 'range', text: 'Range' },
                         { value: 'last_time', text: 'Time of last point' },
                     ];
+                    _this.sortOrderOptions = [
+                        { value: 'asc', text: 'asc' },
+                        { value: 'desc', text: 'desc' },
+                    ];
                     _this.panelDefaults = {
                         links: [],
                         datasource: null,
@@ -94,10 +96,11 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         defaultColor: 'rgb(117, 117, 117)',
                         thresholds: [],
                         format: 'none',
+                        sortOrder: 'asc',
                         prefix: '',
                         postfix: '',
                         nullText: null,
-                        valueMaps: [{ value: 'null', op: '=', text: 'N/A' }],
+                        valueMaps: [{ value: 'null', op: '=', text: 'No data' }],
                         mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
                         rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
                         mappingType: 1,
@@ -157,13 +160,14 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     this.render();
                 };
                 SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
-                    control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
-                    console.log("Sorted: " + control.panel.thresholds);
-                    this.$scope.ctrl.refresh();
-                };
-                SingleStatMathCtrl.prototype.reverseMyThreshes = function (control) {
-                    control.panel.thresholds = lodash_1.default.reverse(control.panel.thresholds);
-                    console.log("Sorted: " + control.panel.thresholds);
+                    if (this.panel.sortOrder === 'asc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+                        console.log("Sorted: " + control.panel.thresholds);
+                    }
+                    else if (this.panel.sortOrder === 'desc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
+                        console.log("Sorted: " + control.panel.thresholds);
+                    }
                     this.$scope.ctrl.refresh();
                 };
                 SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
@@ -441,7 +445,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         if (!panel.colorValue) {
                             return valueString;
                         }
-                        var color = getColorForValue(panel.defaultColor, data, value);
+                        var color = getColorForValue(data, value);
                         if (color) {
                             return '<span></span>';
                         }
@@ -534,7 +538,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                                         width: thresholdMarkersWidth,
                                     },
                                     value: {
-                                        color: panel.colorValue ? getColorForValue(panel.defaultColor, data, data.valueRounded) : null,
+                                        color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
                                         formatter: function () {
                                             return getValueText();
                                         },
@@ -615,7 +619,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                                 color = panel.valueMappingColorBackground;
                             }
                             else {
-                                color = getColorForValue(panel.defaultColor, panel.thresholds, data.value);
+                                color = getColorForValue(panel.thresholds, data.value);
                             }
                             if (color) {
                                 $panelContainer.css('background-color', color);
