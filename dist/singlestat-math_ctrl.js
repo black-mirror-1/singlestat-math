@@ -94,7 +94,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         targets: [{}],
                         cacheTimeout: null,
                         defaultColor: 'rgb(117, 117, 117)',
-                        thresholds: [],
+                        thresholds: '',
                         format: 'none',
                         sortOrder: 'asc',
                         prefix: '',
@@ -136,6 +136,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
                     _this.onSparklineColorChange = _this.onSparklineColorChange.bind(_this);
                     _this.onSparklineFillChange = _this.onSparklineFillChange.bind(_this);
+                    var t = _this.panel.thresholds;
+                    if (typeof t === 'string' || t instanceof String) {
+                        _this.oldThreshesChange(t);
+                    }
                     return _this;
                 }
                 SingleStatMathCtrl.prototype.onInitEditMode = function () {
@@ -143,6 +147,19 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     this.addEditorTab('Options', 'public/plugins/blackmirror1-singlestat-math-panel/editor.html', 2);
                     this.addEditorTab('Value Mappings', 'public/plugins/blackmirror1-singlestat-math-panel/mappings.html', 3);
                     this.unitFormats = kbn_1.default.getUnitFormats();
+                };
+                SingleStatMathCtrl.prototype.oldThreshesChange = function (threshes) {
+                    var array = JSON.parse("[" + threshes + "]");
+                    console.log(array);
+                    this.thresholds = [];
+                    console.log("Inst dict: " + this.thresholds);
+                    for (var i = 0; i < array.length; i++) {
+                        this.thresholds.push({
+                            color: this.panel.colors[i],
+                            value: array[i],
+                        });
+                        console.log("Value[" + i + "] = " + this.thresholds[i].value);
+                    }
                 };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
                     this.panel.format = subItem.value;

@@ -13,6 +13,7 @@ import kbn from 'app/core/utils/kbn';
 import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
 import { MetricsPanelCtrl, PanelCtrl } from 'app/plugins/sdk';
+//import { strict } from 'assert';
 
 class SingleStatMathCtrl extends MetricsPanelCtrl {
   static templateUrl = 'public/plugins/blackmirror1-singlestat-math-panel/module.html';
@@ -105,7 +106,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     //Grab older version thresholds and store into new format
     var t = this.panel.thresholds;
-    if ((t != null)) {
+    if (typeof t === 'string' || t instanceof String) {
       this.oldThreshesChange(t);
     }
   }
@@ -118,9 +119,18 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   oldThreshesChange(threshes) {
-    threshes = this.panel.threshold.split(',').map(function(strVal){
-      return Number(strVal.trim());
-    });
+    var array = JSON.parse("[" + threshes + "]");
+    console.log(array);
+    this.thresholds = []; //instantiate a new defined dictionary
+    console.log("Inst dict: " + this.thresholds);
+    //push old items into new dictionary
+    for (var i = 0; i < array.length; i++) {
+      this.thresholds.push({
+        color: this.panel.colors[i],
+        value: array[i],
+      });
+      console.log("Value[" + i + "] = " + this.thresholds[i].value);
+    }
   }
 
   setUnitFormat(subItem) {
