@@ -160,6 +160,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         });
                         console.log("Value[" + i + "] = " + this.thresholds[i].value);
                     }
+                    this.panel["thresholds"] = this.thresholds;
                 };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
                     this.panel.format = subItem.value;

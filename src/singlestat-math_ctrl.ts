@@ -123,6 +123,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     console.log(array);
     this.thresholds = []; //instantiate a new defined dictionary
     console.log("Inst dict: " + this.thresholds);
+
     //push old items into new dictionary
     for (var i = 0; i < array.length; i++) {
       this.thresholds.push({
@@ -131,6 +132,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       });
       console.log("Value[" + i + "] = " + this.thresholds[i].value);
     }
+
+    //Overwrite JSON
+    this.panel["thresholds"] = this.thresholds;
   }
 
   setUnitFormat(subItem) {
