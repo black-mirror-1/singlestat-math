@@ -12,16 +12,19 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
     })();
     var lodash_1, jquery_1, math_1, kbn_1, config_1, time_series2_1, sdk_1, SingleStatMathCtrl;
     var __moduleName = context_1 && context_1.id;
-    function getColorForValue(data, value) {
-        if (!lodash_1.default.isFinite(value)) {
-            return null;
+    function getColorForValue(thresholds, value) {
+        var color = '';
+        if (value === null) {
+            return color;
         }
-        for (var i = data.thresholds.length; i > 0; i--) {
-            if (value >= data.thresholds[i - 1]) {
-                return data.colorMap[i];
+        for (var i = thresholds.length - 1; i >= 0; i--) {
+            var aThreshold = thresholds[i];
+            color = aThreshold.color;
+            if (value >= aThreshold.value) {
+                return aThreshold.color;
             }
         }
-        return lodash_1.default.first(data.colorMap);
+        return color;
     }
     exports_1("getColorForValue", getColorForValue);
     return {
@@ -86,11 +89,14 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         interval: null,
                         targets: [{}],
                         cacheTimeout: null,
+                        defaultColor: 'rgb(117, 117, 117)',
+                        thresholds: '',
                         format: 'none',
+                        sortOrder: 'asc',
                         prefix: '',
                         postfix: '',
                         nullText: null,
-                        valueMaps: [{ value: 'null', op: '=', text: 'N/A' }],
+                        valueMaps: [{ value: 'null', op: '=', text: 'No data' }],
                         mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
                         rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
                         mappingType: 1,
@@ -99,11 +105,11 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         prefixFontSize: '50%',
                         valueFontSize: '80%',
                         postfixFontSize: '50%',
-                        thresholds: '',
                         math: '',
                         colorBackground: false,
+                        circleBackground: false,
+                        valueMappingColorBackground: '#787879',
                         colorValue: false,
-                        colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
                         sparkline: {
                             show: false,
                             full: false,
@@ -117,6 +123,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             thresholdMarkers: true,
                             thresholdLabels: false,
                         },
+                        sortOrderOptions: [
+                            { value: 'asc', text: 'Ascending' },
+                            { value: 'desc', text: 'Descending' },
+                        ],
                         tableColumn: '',
                     };
                     lodash_1.default.defaults(_this.panel, _this.panelDefaults);
@@ -126,6 +136,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
                     _this.onSparklineColorChange = _this.onSparklineColorChange.bind(_this);
                     _this.onSparklineFillChange = _this.onSparklineFillChange.bind(_this);
+                    var t = _this.panel.thresholds;
+                    if (typeof t === 'string' || t instanceof String) {
+                        _this.oldThreshesChange(t);
+                    }
                     return _this;
                 }
                 SingleStatMathCtrl.prototype.onInitEditMode = function () {
@@ -134,12 +148,40 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     this.addEditorTab('Value Mappings', 'public/plugins/blackmirror1-singlestat-math-panel/mappings.html', 3);
                     this.unitFormats = kbn_1.default.getUnitFormats();
                 };
+                SingleStatMathCtrl.prototype.oldThreshesChange = function (threshes) {
+                    var array = JSON.parse("[" + threshes + "]");
+                    this.thresholds = [];
+                    for (var i = 0; i < array.length; i++) {
+                        this.thresholds.push({
+                            color: this.panel.colors[i],
+                            value: Number(array[i]),
+                        });
+                    }
+                    this.panel["thresholds"] = this.thresholds;
+                };
+                SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
+                    if (this.panel.sortOrder === 'asc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+                    }
+                    else if (this.panel.sortOrder === 'desc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+                    }
+                    this.$scope.ctrl.refresh();
+                };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
                     this.panel.format = subItem.value;
                     this.refresh();
                 };
                 SingleStatMathCtrl.prototype.onDataError = function (err) {
                     this.onDataReceived([]);
+                };
+                SingleStatMathCtrl.prototype.onEditorRemoveThreshold = function (index) {
+                    this.panel.thresholds.splice(index, 1);
+                    this.render();
+                };
+                SingleStatMathCtrl.prototype.onEditorAddThreshold = function () {
+                    this.panel.thresholds.push({ color: this.panel.defaultColor });
+                    this.render();
                 };
                 SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
                     var data = {};
@@ -218,30 +260,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                 };
                 SingleStatMathCtrl.prototype.canChangeFontSize = function () {
                     return this.panel.gauge.show;
-                };
-                SingleStatMathCtrl.prototype.setColoring = function (options) {
-                    if (options.background) {
-                        this.panel.colorValue = false;
-                        this.panel.colors = ['rgba(71, 212, 59, 0.4)', 'rgba(245, 150, 40, 0.73)', 'rgba(225, 40, 40, 0.59)'];
-                    }
-                    else {
-                        this.panel.colorBackground = false;
-                        this.panel.colors = ['rgba(50, 172, 45, 0.97)', 'rgba(237, 129, 40, 0.89)', 'rgba(245, 54, 54, 0.9)'];
-                    }
-                    this.render();
-                };
-                SingleStatMathCtrl.prototype.invertColorOrder = function () {
-                    var tmp = this.panel.colors[0];
-                    this.panel.colors[0] = this.panel.colors[2];
-                    this.panel.colors[2] = tmp;
-                    this.render();
-                };
-                SingleStatMathCtrl.prototype.onColorChange = function (panelColorIndex) {
-                    var _this = this;
-                    return function (color) {
-                        _this.panel.colors[panelColorIndex] = color;
-                        _this.render();
-                    };
                 };
                 SingleStatMathCtrl.prototype.onSparklineColorChange = function (newColor) {
                     this.panel.sparkline.lineColor = newColor;
@@ -442,7 +460,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         }
                         var color = getColorForValue(data, value);
                         if (color) {
-                            return '<span style="color:' + color + '">' + valueString + '</span>';
+                            return '<span></span>';
                         }
                         return valueString;
                     }
@@ -490,15 +508,15 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         };
                         plotCanvas.css(plotCss);
                         var thresholds = [];
-                        for (var i = 0; i < data.thresholds.length; i++) {
+                        for (var i = 0; i < panel.thresholds.length; i++) {
                             thresholds.push({
-                                value: data.thresholds[i],
-                                color: data.colorMap[i],
+                                value: panel.thresholds[i].value,
+                                color: panel.thresholds[i].color,
                             });
                         }
                         thresholds.push({
                             value: panel.gauge.maxValue,
-                            color: data.colorMap[data.colorMap.length - 1],
+                            color: panel.thresholds[panel.thresholds.length - 1],
                         });
                         var bgColor = config_1.default.bootData.user.lightTheme ? 'rgb(230,230,230)' : 'rgb(38,38,38)';
                         var fontScale = parseInt(panel.valueFontSize) / 100;
@@ -607,13 +625,15 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             return;
                         }
                         data = ctrl.data;
-                        data.thresholds = panel.thresholds.split(',').map(function (strVale) {
-                            return Number(strVale.trim());
-                        });
-                        data.colorMap = panel.colors;
                         var body = panel.gauge.show ? '' : getBigValueHtml();
+                        var color = '';
                         if (panel.colorBackground) {
-                            var color = getColorForValue(data, data.value);
+                            if (data.value == null) {
+                                color = panel.valueMappingColorBackground;
+                            }
+                            else {
+                                color = getColorForValue(panel.thresholds, data.value);
+                            }
                             if (color) {
                                 $panelContainer.css('background-color', color);
                                 if (scope.fullscreen) {
@@ -627,6 +647,33 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         else {
                             $panelContainer.css('background-color', '');
                             elem.css('background-color', '');
+                            panel.circleBackground = false;
+                        }
+                        if (panel.circleBackground) {
+                            var circleHeight = jquery_1.default($panelContainer.height())[0] - 27;
+                            var circleWidth = jquery_1.default($panelContainer.width())[0];
+                            jquery_1.default($panelContainer).addClass('circle');
+                            $panelContainer.css('background-color', '');
+                            if (circleWidth >= circleHeight) {
+                                elem.css({
+                                    'border-radius': 50 + '%',
+                                    'width': circleHeight + 'px',
+                                    'height': circleHeight + 'px',
+                                    'background-color': color
+                                });
+                            }
+                            else {
+                                elem.css({
+                                    'border-radius': 50 + '%',
+                                    'width': circleWidth + 'px',
+                                    'height': circleWidth + 'px',
+                                    'background-color': color
+                                });
+                            }
+                        }
+                        else {
+                            jquery_1.default($panelContainer.removeClass('circle'));
+                            elem.css({ 'border-radius': '0', width: '', height: '' });
                         }
                         elem.html(body);
                         if (panel.sparkline.show) {

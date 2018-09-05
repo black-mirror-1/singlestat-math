@@ -13,6 +13,7 @@ import kbn from 'app/core/utils/kbn';
 import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
 import { MetricsPanelCtrl, PanelCtrl } from 'app/plugins/sdk';
+//import { strict } from 'assert';
 
 class SingleStatMathCtrl extends MetricsPanelCtrl {
   static templateUrl = 'public/plugins/blackmirror1-singlestat-math-panel/module.html';
@@ -39,6 +40,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     { value: 'last_time', text: 'Time of last point' },
   ];
   tableColumnOptions: any;
+  thresholds: any[];
 
   // Set and populate defaults
   panelDefaults = {
@@ -48,11 +50,14 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     interval: null,
     targets: [{}],
     cacheTimeout: null,
+    defaultColor: 'rgb(117, 117, 117)',
+    thresholds: '',
     format: 'none',
+    sortOrder: 'asc',
     prefix: '',
     postfix: '',
     nullText: null,
-    valueMaps: [{ value: 'null', op: '=', text: 'N/A' }],
+    valueMaps: [{ value: 'null', op: '=', text: 'No data' }],
     mappingTypes: [{ name: 'value to text', value: 1 }, { name: 'range to text', value: 2 }],
     rangeMaps: [{ from: 'null', to: 'null', text: 'N/A' }],
     mappingType: 1,
@@ -61,11 +66,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     prefixFontSize: '50%',
     valueFontSize: '80%',
     postfixFontSize: '50%',
-    thresholds: '',
     math: '',
     colorBackground: false,
+    circleBackground: false,
+    valueMappingColorBackground: '#787879',
     colorValue: false,
-    colors: ['#299c46', 'rgba(237, 129, 40, 0.89)', '#d44a3a'],
     sparkline: {
       show: false,
       full: false,
@@ -79,6 +84,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       thresholdMarkers: true,
       thresholdLabels: false,
     },
+    sortOrderOptions: [
+      { value: 'asc', text: 'Ascending'},
+      { value: 'desc', text: 'Descending'},
+    ],
     tableColumn: '',
   };
 
@@ -94,6 +103,12 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     this.onSparklineColorChange = this.onSparklineColorChange.bind(this);
     this.onSparklineFillChange = this.onSparklineFillChange.bind(this);
+
+    //Grab previous version thresholds and store into new format
+    var t = this.panel.thresholds;
+    if (typeof t === 'string' || t instanceof String) {
+      this.oldThreshesChange(t);
+    }
   }
 
   onInitEditMode() {
@@ -103,6 +118,31 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     this.unitFormats = kbn.getUnitFormats();
   }
 
+  oldThreshesChange(threshes) {
+    var array = JSON.parse("[" + threshes + "]");
+    this.thresholds = []; //instantiate a new defined dictionary
+
+    //push old items into new dictionary
+    for (var i = 0; i < array.length; i++) {
+      this.thresholds.push({
+        color: this.panel.colors[i],
+        value: Number(array[i]),
+      });
+    }
+
+    //Overwrite JSON
+    this.panel["thresholds"] = this.thresholds;
+  }
+
+  sortMyThreshes(control) {
+    if(this.panel.sortOrder === 'asc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+    } else if (this.panel.sortOrder === 'desc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+    }
+    this.$scope.ctrl.refresh();
+  }
+
   setUnitFormat(subItem) {
     this.panel.format = subItem.value;
     this.refresh();
@@ -110,6 +150,16 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   onDataError(err) {
     this.onDataReceived([]);
+  }
+
+  onEditorRemoveThreshold(index) {
+    this.panel.thresholds.splice(index, 1)
+    this.render();
+  }
+
+  onEditorAddThreshold() {
+    this.panel.thresholds.push({color: this.panel.defaultColor})
+    this.render();
   }
 
   onDataReceived(dataList) {
@@ -206,31 +256,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   canChangeFontSize() {
     return this.panel.gauge.show;
-  }
-
-  setColoring(options) {
-    if (options.background) {
-      this.panel.colorValue = false;
-      this.panel.colors = ['rgba(71, 212, 59, 0.4)', 'rgba(245, 150, 40, 0.73)', 'rgba(225, 40, 40, 0.59)'];
-    } else {
-      this.panel.colorBackground = false;
-      this.panel.colors = ['rgba(50, 172, 45, 0.97)', 'rgba(237, 129, 40, 0.89)', 'rgba(245, 54, 54, 0.9)'];
-    }
-    this.render();
-  }
-
-  invertColorOrder() {
-    var tmp = this.panel.colors[0];
-    this.panel.colors[0] = this.panel.colors[2];
-    this.panel.colors[2] = tmp;
-    this.render();
-  }
-
-  onColorChange(panelColorIndex) {
-    return color => {
-      this.panel.colors[panelColorIndex] = color;
-      this.render();
-    };
   }
 
   onSparklineColorChange(newColor) {
@@ -463,7 +488,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
       var color = getColorForValue(data, value);
       if (color) {
-        return '<span style="color:' + color + '">' + valueString + '</span>';
+        return '<span></span>';
       }
 
       return valueString;
@@ -527,15 +552,15 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       plotCanvas.css(plotCss);
 
       var thresholds = [];
-      for (var i = 0; i < data.thresholds.length; i++) {
+      for (var i = 0; i < panel.thresholds.length; i++) {
         thresholds.push({
-          value: data.thresholds[i],
-          color: data.colorMap[i],
+          value: panel.thresholds[i].value,
+          color: panel.thresholds[i].color,
         });
       }
       thresholds.push({
         value: panel.gauge.maxValue,
-        color: data.colorMap[data.colorMap.length - 1],
+        color: panel.thresholds[panel.thresholds.length - 1],
       });
 
       var bgColor = config.bootData.user.lightTheme ? 'rgb(230,230,230)' : 'rgb(38,38,38)';
@@ -662,16 +687,14 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
       data = ctrl.data;
 
-      // get thresholds
-      data.thresholds = panel.thresholds.split(',').map(function(strVale) {
-        return Number(strVale.trim());
-      });
-      data.colorMap = panel.colors;
-
       var body = panel.gauge.show ? '' : getBigValueHtml();
-
+      var color = '';
       if (panel.colorBackground) {
-        var color = getColorForValue(data, data.value);
+        if (data.value == null) {
+          color = panel.valueMappingColorBackground; //null or grey value
+        } else {
+          color = getColorForValue(panel.thresholds, data.value);
+        }
         if (color) {
           $panelContainer.css('background-color', color);
           if (scope.fullscreen) {
@@ -683,6 +706,34 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       } else {
         $panelContainer.css('background-color', '');
         elem.css('background-color', '');
+        panel.circleBackground = false;
+      }
+      // Convert to Circle
+      if (panel.circleBackground) {
+        let circleHeight = $($panelContainer.height())[0] - 27;
+        let circleWidth = $($panelContainer.width())[0];
+
+        $($panelContainer).addClass('circle');
+        $panelContainer.css('background-color', '');
+
+        if (circleWidth >= circleHeight) {
+          elem.css({
+            'border-radius': 50 + '%',
+            'width': circleHeight + 'px',
+            'height': circleHeight + 'px',
+            'background-color': color
+          });
+        } else {
+          elem.css({
+            'border-radius': 50 + '%',
+            'width': circleWidth + 'px',
+            'height': circleWidth + 'px',
+            'background-color': color
+          });
+        }
+      } else {
+        $($panelContainer.removeClass('circle'));
+        elem.css({ 'border-radius': '0', width: '', height: '' });
       }
 
       elem.html(body);
@@ -761,16 +812,19 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 }
 
-function getColorForValue(data, value) {
-  if (!_.isFinite(value)) {
-    return null;
+function getColorForValue(thresholds, value) {
+  let color = '';
+  if (value === null) {
+    return color;
   }
-  for (var i = data.thresholds.length; i > 0; i--) {
-    if (value >= data.thresholds[i - 1]) {
-      return data.colorMap[i];
-    }
+  for (let i = thresholds.length - 1; i >= 0; i--) {
+    let aThreshold = thresholds[i];
+    color = aThreshold.color;
+      if (value >= aThreshold.value) {
+        return aThreshold.color;
+      }
   }
-  return _.first(data.colorMap);
+  return color;
 }
 
 export {SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue}

@@ -1,7 +1,7 @@
 {
   "name": "blackmirror1-singlestat-math-panel",
   "private": true,
-  "version": "1.1.2",
+  "version": "1.1.5",
   "description": "Single stat panel with math functionality using aliases across more then one series",
   "author": "",
   "license": "ISC",
@@ -26,6 +26,7 @@
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "grunt-ts": "^6.0.0-beta.19",
     "jquery": "^3.3.1",
+    "json": "^9.0.6",
     "lodash": "^4.17.10",
     "mathjs": "^4.2.1",
     "typescript": "^2.8.3"
