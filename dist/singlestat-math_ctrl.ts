@@ -13,6 +13,7 @@ import kbn from 'app/core/utils/kbn';
 import config from 'app/core/config';
 import TimeSeries from 'app/core/time_series2';
 import { MetricsPanelCtrl, PanelCtrl } from 'app/plugins/sdk';
+//import { strict } from 'assert';
 
 class SingleStatMathCtrl extends MetricsPanelCtrl {
   static templateUrl = 'public/plugins/blackmirror1-singlestat-math-panel/module.html';
@@ -39,6 +40,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     { value: 'last_time', text: 'Time of last point' },
   ];
   tableColumnOptions: any;
+  thresholds: any[];
 
   // Set and populate defaults
   panelDefaults = {
@@ -49,8 +51,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     targets: [{}],
     cacheTimeout: null,
     defaultColor: 'rgb(117, 117, 117)',
-    thresholds: [],
+    thresholds: '',
     format: 'none',
+    sortOrder: 'asc',
     prefix: '',
     postfix: '',
     nullText: null,
@@ -81,6 +84,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       thresholdMarkers: true,
       thresholdLabels: false,
     },
+    sortOrderOptions: [
+      { value: 'asc', text: 'Ascending'},
+      { value: 'desc', text: 'Descending'},
+    ],
     tableColumn: '',
   };
 
@@ -96,6 +103,12 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     this.onSparklineColorChange = this.onSparklineColorChange.bind(this);
     this.onSparklineFillChange = this.onSparklineFillChange.bind(this);
+
+    //Grab previous version thresholds and store into new format
+    var t = this.panel.thresholds;
+    if (typeof t === 'string' || t instanceof String) {
+      this.oldThreshesChange(t);
+    }
   }
 
   onInitEditMode() {
@@ -103,6 +116,31 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     this.addEditorTab('Options', 'public/plugins/blackmirror1-singlestat-math-panel/editor.html', 2);
     this.addEditorTab('Value Mappings', 'public/plugins/blackmirror1-singlestat-math-panel/mappings.html', 3);
     this.unitFormats = kbn.getUnitFormats();
+  }
+
+  oldThreshesChange(threshes) {
+    var array = JSON.parse("[" + threshes + "]");
+    this.thresholds = []; //instantiate a new defined dictionary
+
+    //push old items into new dictionary
+    for (var i = 0; i < array.length; i++) {
+      this.thresholds.push({
+        color: this.panel.colors[i],
+        value: Number(array[i]),
+      });
+    }
+
+    //Overwrite JSON
+    this.panel["thresholds"] = this.thresholds;
+  }
+
+  sortMyThreshes(control) {
+    if(this.panel.sortOrder === 'asc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+    } else if (this.panel.sortOrder === 'desc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+    }
+    this.$scope.ctrl.refresh();
   }
 
   setUnitFormat(subItem) {
@@ -122,18 +160,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   onEditorAddThreshold() {
     this.panel.thresholds.push({color: this.panel.defaultColor})
     this.render();
-  }
-
-  sortMyThreshes(control) {
-    control.panel.thresholds = _.orderBy(control.panel.thresholds, Number(["value"]), ["asc"]);
-    console.log("Sorted: " + control.panel.thresholds);
-    this.$scope.ctrl.refresh();
-  }
-
-  reverseMyThreshes(control) {
-    control.panel.thresholds = _.reverse(control.panel.thresholds);
-    console.log("Sorted: " + control.panel.thresholds);
-    this.$scope.ctrl.refresh();
   }
 
   onDataReceived(dataList) {
@@ -460,7 +486,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return valueString;
       }
 
-      var color = getColorForValue(panel.defaultColor, data, value);
+      var color = getColorForValue(data, value);
       if (color) {
         return '<span></span>';
       }
@@ -573,7 +599,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
               width: thresholdMarkersWidth,
             },
             value: {
-              color: panel.colorValue ? getColorForValue(panel.defaultColor, data, data.valueRounded) : null,
+              color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
               formatter: function() {
                 return getValueText();
               },
@@ -667,7 +693,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         if (data.value == null) {
           color = panel.valueMappingColorBackground; //null or grey value
         } else {
-          color = getColorForValue(panel.defaultColor, panel.thresholds, data.value);
+          color = getColorForValue(panel.thresholds, data.value);
         }
         if (color) {
           $panelContainer.css('background-color', color);
@@ -786,19 +812,17 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 }
 
-function getColorForValue(defaultColor, thresholds, value) {
-  let color = defaultColor;
+function getColorForValue(thresholds, value) {
+  let color = '';
   if (value === null) {
     return color;
   }
   for (let i = thresholds.length - 1; i >= 0; i--) {
     let aThreshold = thresholds[i];
+    color = aThreshold.color;
       if (value >= aThreshold.value) {
         return aThreshold.color;
-      } else {
-        color = defaultColor;
       }
-    //color = aThreshold.color;
   }
   return color;
 }

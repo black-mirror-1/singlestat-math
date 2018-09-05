@@ -19,6 +19,7 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     events: any;
     valueNameOptions: any[];
     tableColumnOptions: any;
+    thresholds: any[];
     panelDefaults: {
         links: any[];
         datasource: any;
@@ -27,8 +28,9 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         targets: {}[];
         cacheTimeout: any;
         defaultColor: string;
-        thresholds: any[];
+        thresholds: string;
         format: string;
+        sortOrder: string;
         prefix: string;
         postfix: string;
         nullText: any;
@@ -70,16 +72,20 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
             thresholdMarkers: boolean;
             thresholdLabels: boolean;
         };
+        sortOrderOptions: {
+            value: string;
+            text: string;
+        }[];
         tableColumn: string;
     };
     constructor($scope: any, $injector: any, $location: any, linkSrv: any);
     onInitEditMode(): void;
+    oldThreshesChange(threshes: any): void;
+    sortMyThreshes(control: any): void;
     setUnitFormat(subItem: any): void;
     onDataError(err: any): void;
     onEditorRemoveThreshold(index: any): void;
     onEditorAddThreshold(): void;
-    sortMyThreshes(control: any): void;
-    reverseMyThreshes(control: any): void;
     onDataReceived(dataList: any): void;
     seriesHandler(seriesData: any): any;
     tableHandler(tableData: any): any[];
@@ -97,5 +103,5 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     addRangeMap(): void;
     link(scope: any, elem: any, attrs: any, ctrl: any): void;
 }
-declare function getColorForValue(defaultColor: any, thresholds: any, value: any): any;
+declare function getColorForValue(thresholds: any, value: any): any;
 export { SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue };
