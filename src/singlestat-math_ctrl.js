@@ -48,10 +48,6 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
             { value: 'last_time', text: 'Time of last point' },
         ];
 
-        _this.sortOrderOptions = [
-            { value: 'asc', text: 'asc'},
-            { value: 'desc', text: 'desc'},
-        ];
         // Set and populate defaults
         _this.panelDefaults = {
             links: [],
@@ -94,6 +90,10 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
                 thresholdMarkers: true,
                 thresholdLabels: false
             },
+            sortOrderOptions: [
+                { value: 'asc', text: 'Ascending'},
+                { value: 'desc', text: 'Descending'},
+            ],
             tableColumn: ''
         };
         lodash_1["default"].defaults(_this.panel, _this.panelDefaults);
@@ -103,6 +103,11 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
         _this.events.on('init-edit-mode', _this.onInitEditMode.bind(_this));
         _this.onSparklineColorChange = _this.onSparklineColorChange.bind(_this);
         _this.onSparklineFillChange = _this.onSparklineFillChange.bind(_this);
+        //Grab previous version thresholds and store into new format
+        var t = _.this.panel.thresholds;
+        if (typeof t === 'string' || t instanceof String) {
+        _.this.oldThreshesChange(t);
+        }
         return _this;
     }
     SingleStatMathCtrl.prototype.onInitEditMode = function () {
@@ -110,6 +115,21 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
         this.addEditorTab('Options', 'public/plugins/blackmirror1-singlestat-math-panel/editor.html', 2);
         this.addEditorTab('Value Mappings', 'public/plugins/blackmirror1-singlestat-math-panel/mappings.html', 3);
         this.unitFormats = kbn_1["default"].getUnitFormats();
+    };
+    SingleStatMathCtrl.prototype.oldThreshesChange = function (threshes) {
+        var array = JSON.parse("[" + threshes + "]");
+        this.thresholds = []; //instantiate a new defined dictionary
+
+        //push old items into new dictionary
+        for (var i = 0; i < array.length; i++) {
+            this.thresholds.push({
+                color: this.panel.colors[i],
+                value: Number(array[i]),
+            });
+        }
+
+        //Overwrite JSON
+        this.panel["thresholds"] = this.thresholds;
     };
     SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
         this.panel.format = subItem.value;
@@ -128,13 +148,11 @@ var SingleStatMathCtrl = /** @class */ (function (_super) {
     };
     SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
         if(this.panel.sortOrder === 'asc') {
-            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-            console.log("Sorted: " + control.panel.thresholds);
-          } else if (this.panel.sortOrder === 'desc') {
-            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-            console.log("Sorted: " + control.panel.thresholds);
-          }
-          this.$scope.ctrl.refresh();
+            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+        } else if (this.panel.sortOrder === 'desc') {
+            control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+        }
+        this.$scope.ctrl.refresh();
     };
     SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
         var data = {};
