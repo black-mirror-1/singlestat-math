@@ -82,10 +82,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         { value: 'range', text: 'Range' },
                         { value: 'last_time', text: 'Time of last point' },
                     ];
-                    _this.sortOrderOptions = [
-                        { value: 'asc', text: 'asc' },
-                        { value: 'desc', text: 'desc' },
-                    ];
                     _this.panelDefaults = {
                         links: [],
                         datasource: null,
@@ -127,6 +123,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             thresholdMarkers: true,
                             thresholdLabels: false,
                         },
+                        sortOrderOptions: [
+                            { value: 'asc', text: 'Ascending' },
+                            { value: 'desc', text: 'Descending' },
+                        ],
                         tableColumn: '',
                     };
                     lodash_1.default.defaults(_this.panel, _this.panelDefaults);
@@ -150,17 +150,23 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                 };
                 SingleStatMathCtrl.prototype.oldThreshesChange = function (threshes) {
                     var array = JSON.parse("[" + threshes + "]");
-                    console.log(array);
                     this.thresholds = [];
-                    console.log("Inst dict: " + this.thresholds);
                     for (var i = 0; i < array.length; i++) {
                         this.thresholds.push({
                             color: this.panel.colors[i],
-                            value: array[i],
+                            value: Number(array[i]),
                         });
-                        console.log("Value[" + i + "] = " + this.thresholds[i].value);
                     }
                     this.panel["thresholds"] = this.thresholds;
+                };
+                SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
+                    if (this.panel.sortOrder === 'asc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+                    }
+                    else if (this.panel.sortOrder === 'desc') {
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+                    }
+                    this.$scope.ctrl.refresh();
                 };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
                     this.panel.format = subItem.value;
@@ -176,17 +182,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                 SingleStatMathCtrl.prototype.onEditorAddThreshold = function () {
                     this.panel.thresholds.push({ color: this.panel.defaultColor });
                     this.render();
-                };
-                SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
-                    if (this.panel.sortOrder === 'asc') {
-                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-                        console.log("Sorted: " + control.panel.thresholds);
-                    }
-                    else if (this.panel.sortOrder === 'desc') {
-                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-                        console.log("Sorted: " + control.panel.thresholds);
-                    }
-                    this.$scope.ctrl.refresh();
                 };
                 SingleStatMathCtrl.prototype.onDataReceived = function (dataList) {
                     var data = {};

@@ -19,7 +19,6 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     events: any;
     valueNameOptions: any[];
     tableColumnOptions: any;
-    sortOrderOptions: any[];
     thresholds: any[];
     panelDefaults: {
         links: any[];
@@ -73,16 +72,20 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
             thresholdMarkers: boolean;
             thresholdLabels: boolean;
         };
+        sortOrderOptions: {
+            value: string;
+            text: string;
+        }[];
         tableColumn: string;
     };
     constructor($scope: any, $injector: any, $location: any, linkSrv: any);
     onInitEditMode(): void;
     oldThreshesChange(threshes: any): void;
+    sortMyThreshes(control: any): void;
     setUnitFormat(subItem: any): void;
     onDataError(err: any): void;
     onEditorRemoveThreshold(index: any): void;
     onEditorAddThreshold(): void;
-    sortMyThreshes(control: any): void;
     onDataReceived(dataList: any): void;
     seriesHandler(seriesData: any): any;
     tableHandler(tableData: any): any[];

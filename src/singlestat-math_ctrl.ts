@@ -40,10 +40,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     { value: 'last_time', text: 'Time of last point' },
   ];
   tableColumnOptions: any;
-  sortOrderOptions: any[] = [
-    { value: 'asc', text: 'asc'},
-    { value: 'desc', text: 'desc'},
-  ];
   thresholds: any[];
 
   // Set and populate defaults
@@ -88,6 +84,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       thresholdMarkers: true,
       thresholdLabels: false,
     },
+    sortOrderOptions: [
+      { value: 'asc', text: 'Ascending'},
+      { value: 'desc', text: 'Descending'},
+    ],
     tableColumn: '',
   };
 
@@ -104,7 +104,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     this.onSparklineColorChange = this.onSparklineColorChange.bind(this);
     this.onSparklineFillChange = this.onSparklineFillChange.bind(this);
 
-    //Grab older version thresholds and store into new format
+    //Grab previous version thresholds and store into new format
     var t = this.panel.thresholds;
     if (typeof t === 'string' || t instanceof String) {
       this.oldThreshesChange(t);
@@ -120,21 +120,27 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   oldThreshesChange(threshes) {
     var array = JSON.parse("[" + threshes + "]");
-    console.log(array);
     this.thresholds = []; //instantiate a new defined dictionary
-    console.log("Inst dict: " + this.thresholds);
 
     //push old items into new dictionary
     for (var i = 0; i < array.length; i++) {
       this.thresholds.push({
         color: this.panel.colors[i],
-        value: array[i],
+        value: Number(array[i]),
       });
-      console.log("Value[" + i + "] = " + this.thresholds[i].value);
     }
 
     //Overwrite JSON
     this.panel["thresholds"] = this.thresholds;
+  }
+
+  sortMyThreshes(control) {
+    if(this.panel.sortOrder === 'asc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+    } else if (this.panel.sortOrder === 'desc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+    }
+    this.$scope.ctrl.refresh();
   }
 
   setUnitFormat(subItem) {
@@ -154,17 +160,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   onEditorAddThreshold() {
     this.panel.thresholds.push({color: this.panel.defaultColor})
     this.render();
-  }
-
-  sortMyThreshes(control) {
-    if(this.panel.sortOrder === 'asc') {
-      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-      console.log("Sorted: " + control.panel.thresholds);
-    } else if (this.panel.sortOrder === 'desc') {
-      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], [this.panel.sortOrder]);
-      console.log("Sorted: " + control.panel.thresholds);
-    }
-    this.$scope.ctrl.refresh();
   }
 
   onDataReceived(dataList) {
