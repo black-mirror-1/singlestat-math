@@ -95,6 +95,7 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     onSparklineColorChange(newColor: any): void;
     onSparklineFillChange(newColor: any): void;
     getDecimalsForValue(value: any): any;
+    _doMath(mathFunction: any, data: any): void;
     setValues(data: any): void;
     setValueMapping(data: any): void;
     removeValueMap(map: any): void;
