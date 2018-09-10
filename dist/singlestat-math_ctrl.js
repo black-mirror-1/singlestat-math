@@ -458,9 +458,12 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         if (!panel.colorValue) {
                             return valueString;
                         }
-                        var color = getColorForValue(data, value);
+                        var color = getColorForValue(panel.thresholds, data.value);
+                        if (data.value == null) {
+                            color = panel.valueMappingColorBackground;
+                        }
                         if (color) {
-                            return '<span></span>';
+                            return '<span style="color:' + color + '">' + valueString + '</span>';
                         }
                         return valueString;
                     }
@@ -650,7 +653,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             panel.circleBackground = false;
                         }
                         if (panel.circleBackground) {
-                            var circleHeight = jquery_1.default($panelContainer.height())[0] - 27;
+                            var circleHeight = jquery_1.default($panelContainer.height())[0] - 26;
                             var circleWidth = jquery_1.default($panelContainer.width())[0];
                             jquery_1.default($panelContainer).addClass('circle');
                             $panelContainer.css('background-color', '');
