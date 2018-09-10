@@ -486,9 +486,14 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return valueString;
       }
 
-      var color = getColorForValue(data, value);
+      var color = getColorForValue(panel.thresholds, data.value);
+
+      if (data.value == null) {
+        color = panel.valueMappingColorBackground;
+      }
+
       if (color) {
-        return '<span></span>';
+        return '<span style="color:' + color + '">' + valueString + '</span>';
       }
 
       return valueString;
@@ -710,7 +715,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
       // Convert to Circle
       if (panel.circleBackground) {
-        let circleHeight = $($panelContainer.height())[0] - 27;
+        let circleHeight = $($panelContainer.height())[0] - 26;
         let circleWidth = $($panelContainer.width())[0];
 
         $($panelContainer).addClass('circle');
