@@ -604,7 +604,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
               width: thresholdMarkersWidth,
             },
             value: {
-              color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
+              color: panel.colorValue ? getColorForValue(panel.thresholds, data.valueRounded) : null,
               formatter: function() {
                 return getValueText();
               },
@@ -759,7 +759,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         linkInfo = null;
       }
     }
-
+    
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
       var drilldownTooltip = $('<div id="tooltip" class="">hello</div>"');
@@ -799,17 +799,15 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       });
 
       elem.mousemove(function(e) {
-        if (!linkInfo) {
+        if (!panel.colorValue) {
           return;
         }
 
-        drilldownTooltip.text('click to go to: ' + linkInfo.title);
+        drilldownTooltip.text(data.valueFormatted);
         drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
       });
     }
-
     hookupDrilldownLinkTooltip();
-
     this.events.on('render', function() {
       render();
       ctrl.renderingCompleted();
