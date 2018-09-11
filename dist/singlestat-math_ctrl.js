@@ -554,7 +554,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                                         width: thresholdMarkersWidth,
                                     },
                                     value: {
-                                        color: panel.colorValue ? getColorForValue(data, data.valueRounded) : null,
+                                        color: panel.colorValue ? getColorForValue(panel.thresholds, data.valueRounded) : null,
                                         formatter: function () {
                                             return getValueText();
                                         },
@@ -693,6 +693,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             linkInfo = null;
                         }
                     }
+                    var ser = this.series;
                     function hookupDrilldownLinkTooltip() {
                         var drilldownTooltip = jquery_1.default('<div id="tooltip" class="">hello</div>"');
                         elem.mouseleave(function () {
@@ -725,10 +726,10 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             drilldownTooltip.detach();
                         });
                         elem.mousemove(function (e) {
-                            if (!linkInfo) {
+                            if (!panel.colorValue) {
                                 return;
                             }
-                            drilldownTooltip.text('click to go to: ' + linkInfo.title);
+                            drilldownTooltip.text(ser + " : " + data.valueFormatted);
                             drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
                         });
                     }
