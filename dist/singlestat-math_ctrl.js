@@ -160,11 +160,12 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     this.panel["thresholds"] = this.thresholds;
                 };
                 SingleStatMathCtrl.prototype.sortMyThreshes = function (control) {
+                    this._updateThresholdValues();
                     if (this.panel.sortOrder === 'asc') {
-                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["displayvalue"], ["asc"]);
                     }
                     else if (this.panel.sortOrder === 'desc') {
-                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+                        control.panel.thresholds = lodash_1.default.orderBy(control.panel.thresholds, ["displayvalue"], ["desc"]);
                     }
                     this.$scope.ctrl.refresh();
                 };
@@ -301,8 +302,38 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                     result.scaledDecimals = result.decimals - Math.floor(Math.log(size) / Math.LN10) + 2;
                     return result;
                 };
-                SingleStatMathCtrl.prototype.setValues = function (data) {
+                SingleStatMathCtrl.prototype._doMath = function (mathFunction, data) {
                     var _this = this;
+                    this.series.forEach(function (element) {
+                        mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[_this.panel.valueName]));
+                    });
+                    try {
+                        mathFunction = mathFunction.replace(new RegExp('[A-Za-z]+', 'gi'), String(0));
+                        data.value = math_1.default.eval(mathFunction);
+                        data.flotpairs = this.series[0].flotpairs;
+                    }
+                    catch (e) {
+                        data.value = 0;
+                        data.flotpairs = [0, 0];
+                    }
+                };
+                SingleStatMathCtrl.prototype._updateThresholdValues = function () {
+                    for (var i = 0; i < this.panel.thresholds.length; i++) {
+                        var haschars = new RegExp('[a-z]+', 'gi');
+                        if (haschars.test(this.panel.thresholds[i].value)) {
+                            var datatmp = { 'value': 0 };
+                            this._doMath(this.panel.thresholds[i].value, datatmp);
+                            if (datatmp.value > this.panel.gauge.maxValue) {
+                                datatmp.value = this.panel.gauge.maxValue;
+                            }
+                            this.panel.thresholds[i].displayvalue = datatmp.value;
+                        }
+                        else {
+                            this.panel.thresholds[i].displayvalue = this.panel.thresholds[i].value;
+                        }
+                    }
+                };
+                SingleStatMathCtrl.prototype.setValues = function (data) {
                     data.flotpairs = [];
                     if (this.series.length > 1 || this.panel.math.length) {
                         var lastPoint_1 = [];
@@ -329,19 +360,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         }
                         else {
                             if (this.panel.math.length) {
-                                var mathFunction = this.panel.math;
-                                this.series.forEach(function (element) {
-                                    mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[_this.panel.valueName]));
-                                });
-                                try {
-                                    mathFunction = mathFunction.replace(new RegExp('[A-za-z]+', 'gi'), String(0));
-                                    data.value = math_1.default.eval(mathFunction);
-                                    data.flotpairs = this.series[0].flotpairs;
-                                }
-                                catch (e) {
-                                    data.value = 0;
-                                    data.flotpairs = [0, 0];
-                                }
+                                this._doMath(this.panel.math, data);
                             }
                             else {
                                 data.value = this.series[0].stats[this.panel.valueName];
@@ -351,6 +370,9 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             var formatFunc = kbn_1.default.valueFormats[this.panel.format];
                             data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
                             data.valueRounded = kbn_1.default.roundValue(data.value, decimalInfo.decimals);
+                        }
+                        if (this.panel.gauge.show) {
+                            this._updateThresholdValues();
                         }
                         if (this.series && this.series.length > 0) {
                             data.scopedVars = lodash_1.default.extend({}, this.panel.scopedVars);
@@ -513,7 +535,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         var thresholds = [];
                         for (var i = 0; i < panel.thresholds.length; i++) {
                             thresholds.push({
-                                value: panel.thresholds[i].value,
+                                value: panel.thresholds[i].displayvalue,
                                 color: panel.thresholds[i].color,
                             });
                         }

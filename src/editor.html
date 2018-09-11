@@ -62,7 +62,7 @@
     
 		<div class="gf-form" ng-repeat="threshold in ctrl.panel.thresholds">
       <label class="gf-form-label width-10">Threshold {{$index + 1}}</label>
-			<input type="number" class="input-small gf-form-input width-8" ng-model="threshold.value" ng-blur="ctrl.sortMyThreshes(ctrl)"/>
+			<input type="text" class="input-small gf-form-input width-8" ng-model="threshold.value" ng-blur="ctrl.sortMyThreshes(ctrl)"/>
 			<label class="gf-form-label">
         <spectrum-picker ng-model="threshold.color" ng-change="ctrl.render()"/>
 			</label>
@@ -82,7 +82,7 @@
 			</label>
     </div>
     
-    <!-- <div class="gf-form">
+     <div class="gf-form">
         <label class="gf-form-label">
           <tip>Sorts thresholds</tip>
             Sort
@@ -90,7 +90,7 @@
         </label>
         <select class="gf-form-input width-10" ng-model="ctrl.panel.sortOrder" ng-options="s.value as s.text for s in ctrl.panel.sortOrderOptions" ng-change="ctrl.sortMyThreshes(ctrl)"></select>
     </div>
-  </div> -->
+  </div>
 
   <div class="section gf-form-group">
     <h5 class="section-heading">Query Math</h5>
