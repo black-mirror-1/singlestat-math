@@ -693,7 +693,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             linkInfo = null;
                         }
                     }
-                    var ser = this.series;
                     function hookupDrilldownLinkTooltip() {
                         var drilldownTooltip = jquery_1.default('<div id="tooltip" class="">hello</div>"');
                         elem.mouseleave(function () {
@@ -729,7 +728,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             if (!panel.colorValue) {
                                 return;
                             }
-                            drilldownTooltip.text(ser + " : " + data.valueFormatted);
+                            drilldownTooltip.text(data.valueFormatted);
                             drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
                         });
                     }

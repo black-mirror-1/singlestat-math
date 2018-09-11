@@ -759,7 +759,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         linkInfo = null;
       }
     }
-    var ser = this.series;
+    
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
       var drilldownTooltip = $('<div id="tooltip" class="">hello</div>"');
@@ -802,8 +802,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         if (!panel.colorValue) {
           return;
         }
-        
-        drilldownTooltip.text(ser + " : " + data.valueFormatted);
+
+        drilldownTooltip.text(data.valueFormatted);
         drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
       });
     }
