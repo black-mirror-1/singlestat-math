@@ -325,21 +325,41 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     }
   }
 
+  _calcDisplayValue(val) {
+    var haschars = new RegExp('[a-z]+', 'gi');
+    if (haschars.test(val)) {
+      var datatmp = { 'value': 0 };
+      this._doMath(val, datatmp);
+      return datatmp.value;
+    }
+    else {
+      return val;
+    }
+  }
+
   _updateThresholdValues() {
     // Set the display value on any thresholds that may need to run math function
     for (var i = 0; i < this.panel.thresholds.length; i++) {
-      var haschars = new RegExp('[a-z]+', 'gi');
-      if (haschars.test(this.panel.thresholds[i].value)) {
-        var datatmp = { 'value': 0 };
-        this._doMath(this.panel.thresholds[i].value, datatmp);
-        if (datatmp.value > this.panel.gauge.maxValue) {
-          datatmp.value = this.panel.gauge.maxValue;
-        }
-        this.panel.thresholds[i].displayvalue = datatmp.value;
+      var dispval = this._calcDisplayValue(this.panel.thresholds[i].value);
+      if (dispval > this.panel.gauge.maxDisplayValue) {
+        dispval = this.panel.gauge.maxDisplayValue;
       }
-      else {
-        this.panel.thresholds[i].displayvalue = this.panel.thresholds[i].value;
-      }
+      this.panel.thresholds[i].displayvalue = dispval;
+    }
+  }
+
+  _updateMinMaxValues() {
+    // Set the display value on any Max or Min that may need to run math function
+    // If value is undefined, use defaults until value set
+    if (this.panel.gauge.minValue != undefined) {
+      this.panel.gauge.minDisplayValue = this._calcDisplayValue(this.panel.gauge.minValue);
+    } else {
+      this.panel.gauge.minDisplayValue = 0;
+    }
+    if (this.panel.gauge.maxValue != undefined) {
+      this.panel.gauge.maxDisplayValue = this._calcDisplayValue(this.panel.gauge.maxValue);
+    } else {
+      this.panel.gauge.maxDisplayValue = 100;
     }
   }
 
@@ -382,6 +402,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
         data.valueRounded = kbn.roundValue(data.value, decimalInfo.decimals);
       }
+
+      this._updateMinMaxValues();
 
       if (this.panel.gauge.show) {
         this._updateThresholdValues();
@@ -566,7 +588,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       var dimension = Math.min(width, height * 1.3);
 
       ctrl.invalidGaugeRange = false;
-      if (panel.gauge.minValue > panel.gauge.maxValue) {
+      if (panel.gauge.minDisplayValue > panel.gauge.maxDisplayValue) {
         ctrl.invalidGaugeRange = true;
         return;
       }
@@ -590,7 +612,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         });
       }
       thresholds.push({
-        value: panel.gauge.maxValue,
+        value: panel.gauge.maxDisplayValue,
         color: panel.thresholds[panel.thresholds.length - 1],
       });
 
@@ -608,8 +630,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         series: {
           gauges: {
             gauge: {
-              min: panel.gauge.minValue,
-              max: panel.gauge.maxValue,
+              min: panel.gauge.minDisplayValue,
+              max: panel.gauge.maxDisplayValue,
               background: { color: bgColor },
               border: { color: null },
               shadow: { show: false },
