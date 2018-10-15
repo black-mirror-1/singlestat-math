@@ -13,4 +13,4 @@ System.register(["./singlestat-math_ctrl"], function (exports_1, context_1) {
         }
     };
 });
-//# sourceMappingURL=module.js.map
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibW9kdWxlLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vc3JjL21vZHVsZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7OzttQ0FBUyx5Q0FBa0I7UUFJM0IsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IFNpbmdsZVN0YXRNYXRoQ3RybCB9IGZyb20gJy4vc2luZ2xlc3RhdC1tYXRoX2N0cmwnO1xuaW1wb3J0IHsgbG9hZFBsdWdpbkNzcyB9IGZyb20gJ2FwcC9wbHVnaW5zL3Nkayc7XG5cbmV4cG9ydCB7IFNpbmdsZVN0YXRNYXRoQ3RybCBhcyBQYW5lbEN0cmwgfTtcbiJdfQ==

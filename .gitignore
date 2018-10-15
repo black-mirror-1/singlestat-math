@@ -32,3 +32,4 @@ fig.yml
 profile.cov
 grafana
 .notouch
+.tscache
