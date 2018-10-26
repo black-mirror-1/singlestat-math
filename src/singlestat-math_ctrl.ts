@@ -119,13 +119,28 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   oldThreshesChange(threshes) {
-    var array = JSON.parse("[" + threshes + "]");
+    var array = null;
+    try {
+      array = JSON.parse("[" + threshes + "]");
+    } catch (err) {
+      console.log("JSON parse failed" + err.message);
+    }
+    if (array === null) {
+      // use split method instead
+      array = threshes.split(",");
+    }
     this.thresholds = []; //instantiate a new defined dictionary
 
     //push old items into new dictionary
     for (var i = 0; i < array.length; i++) {
+      let useColor = this.panel.defaultColor;
+      if (typeof this.panel.colors !== "undefined") {
+        if (i < this.panel.colors.length) {
+          useColor = this.panel.colors[i];
+        }
+      }
       this.thresholds.push({
-        color: this.panel.colors[i],
+        color: useColor,
         value: Number(array[i]),
       });
     }
