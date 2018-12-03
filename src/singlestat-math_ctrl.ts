@@ -351,7 +351,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         data.valueFormatted = formatFunc(data.value, 0, 0);
       } else {
         if (this.panel.math.length){
-          var mathFunction = this.panel.math;
+          var mathFunction = this.templateSrv.replace(this.panel.math, data.scopedVars);
           this.series.forEach(element => {
             mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
           });
