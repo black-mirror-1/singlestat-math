@@ -41,6 +41,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   ];
   tableColumnOptions: any;
   thresholds: any[];
+  tooltip: 'Hello World!';
 
   // Set and populate defaults
   panelDefaults = {
@@ -53,6 +54,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     defaultColor: 'rgb(117, 117, 117)',
     thresholds: '',
     format: 'none',
+    legend: {
+      show: false
+    },
     sortOrder: 'asc',
     prefix: '',
     postfix: '',
@@ -145,6 +149,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   setUnitFormat(subItem) {
     this.panel.format = subItem.value;
+    this.refresh();
+  }
+
+  toggleLegendDisplay() {
+    this.panel.legend.show = !this.panel.legend.show;
     this.refresh();
   }
 
@@ -692,6 +701,22 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
       data = ctrl.data;
 
+      // For tooltip?
+      hookupDrilldownLinkTooltip();
+
+      //For legend display
+      // var template = `
+      // <div class="graph-legend">
+      //   <div class="graph-legend-content" graph-legend></div>
+      // </div>
+      // `;
+
+      // if (ctrl.panel.legend.show == true) {
+      //   //TODO - add template to panel
+      // } else {
+      //   //TODO - if template is in code remove
+      // }
+
       var body = panel.gauge.show ? '' : getBigValueHtml();
       var color = '';
       if (panel.colorBackground) {
@@ -759,10 +784,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         linkInfo = null;
       }
     }
-    
+
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
-      var drilldownTooltip = $('<div id="tooltip" class="">hello</div>"');
+      var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
+      + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
 
       elem.mouseleave(function() {
         if (panel.links.length === 0) {
@@ -799,15 +825,18 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       });
 
       elem.mousemove(function(e) {
-        if (!panel.colorValue) {
+        if (!linkInfo) {
           return;
         }
 
-        drilldownTooltip.text(data.valueFormatted);
+        //drilldownTooltip.text('click to go to: ' + linkInfo.title);
+        //drilldownTooltip.text(ctrl.panel.description);
         drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
       });
     }
+
     hookupDrilldownLinkTooltip();
+
     this.events.on('render', function() {
       render();
       ctrl.renderingCompleted();
