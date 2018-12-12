@@ -92,8 +92,8 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         defaultColor: 'rgb(117, 117, 117)',
                         thresholds: '',
                         format: 'none',
-                        legend: {
-                            show: false
+                        tooltip: {
+                            show: true
                         },
                         sortOrder: 'asc',
                         prefix: '',
@@ -173,10 +173,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                 };
                 SingleStatMathCtrl.prototype.setUnitFormat = function (subItem) {
                     this.panel.format = subItem.value;
-                    this.refresh();
-                };
-                SingleStatMathCtrl.prototype.toggleLegendDisplay = function () {
-                    this.panel.legend.show = !this.panel.legend.show;
                     this.refresh();
                 };
                 SingleStatMathCtrl.prototype.onDataError = function (err) {
@@ -635,7 +631,6 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             return;
                         }
                         data = ctrl.data;
-                        hookupDrilldownLinkTooltip();
                         var body = panel.gauge.show ? '' : getBigValueHtml();
                         var color = '';
                         if (panel.colorBackground) {
@@ -702,8 +697,14 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         }
                     }
                     function hookupDrilldownLinkTooltip() {
-                        var drilldownTooltip = jquery_1.default('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
-                            + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+                        if (ctrl.panel.description) {
+                            var drilldownTooltip = jquery_1.default('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+                                + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+                        }
+                        else {
+                            var drilldownTooltip = jquery_1.default('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+                                + ctrl.panel.title + '</h6>No Description</div>"');
+                        }
                         elem.mouseleave(function () {
                             if (panel.links.length === 0) {
                                 return;
@@ -734,7 +735,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                             drilldownTooltip.detach();
                         });
                         elem.mousemove(function (e) {
-                            if (!linkInfo) {
+                            if (!ctrl.panel.tooltip.show) {
                                 return;
                             }
                             drilldownTooltip.place_tt(e.pageX, e.pageY - 50);

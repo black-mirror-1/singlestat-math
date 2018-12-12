@@ -41,7 +41,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   ];
   tableColumnOptions: any;
   thresholds: any[];
-  tooltip: 'Hello World!';
 
   // Set and populate defaults
   panelDefaults = {
@@ -54,8 +53,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     defaultColor: 'rgb(117, 117, 117)',
     thresholds: '',
     format: 'none',
-    legend: {
-      show: false
+    tooltip: {
+      show: true
     },
     sortOrder: 'asc',
     prefix: '',
@@ -149,11 +148,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
   setUnitFormat(subItem) {
     this.panel.format = subItem.value;
-    this.refresh();
-  }
-
-  toggleLegendDisplay() {
-    this.panel.legend.show = !this.panel.legend.show;
     this.refresh();
   }
 
@@ -700,23 +694,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return;
       }
       data = ctrl.data;
-
-      // For tooltip?
-      hookupDrilldownLinkTooltip();
-
-      //For legend display
-      // var template = `
-      // <div class="graph-legend">
-      //   <div class="graph-legend-content" graph-legend></div>
-      // </div>
-      // `;
-
-      // if (ctrl.panel.legend.show == true) {
-      //   //TODO - add template to panel
-      // } else {
-      //   //TODO - if template is in code remove
-      // }
-
       var body = panel.gauge.show ? '' : getBigValueHtml();
       var color = '';
       if (panel.colorBackground) {
@@ -787,8 +764,14 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
-      var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
+
+      if (ctrl.panel.description) {
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
       + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+      } else {
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
+      + ctrl.panel.title + '</h6>No Description</div>"');
+      }
 
       elem.mouseleave(function() {
         if (panel.links.length === 0) {
@@ -825,7 +808,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       });
 
       elem.mousemove(function(e) {
-        if (!linkInfo) {
+        if (!ctrl.panel.tooltip.show) {
           return;
         }
 

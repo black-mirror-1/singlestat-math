@@ -20,7 +20,6 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     valueNameOptions: any[];
     tableColumnOptions: any;
     thresholds: any[];
-    tooltip: 'Hello World!';
     panelDefaults: {
         links: any[];
         datasource: any;
@@ -31,7 +30,7 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         defaultColor: string;
         thresholds: string;
         format: string;
-        legend: {
+        tooltip: {
             show: boolean;
         };
         sortOrder: string;
@@ -87,7 +86,6 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
     oldThreshesChange(threshes: any): void;
     sortMyThreshes(control: any): void;
     setUnitFormat(subItem: any): void;
-    toggleLegendDisplay(): void;
     onDataError(err: any): void;
     onEditorRemoveThreshold(index: any): void;
     onEditorAddThreshold(): void;
