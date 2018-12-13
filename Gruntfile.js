@@ -2,8 +2,8 @@ module.exports = function(grunt) {
 
   require('load-grunt-tasks')(grunt);
 
-  grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-tslint');
   grunt.loadNpmTasks('grunt-ts');
 
   grunt.initConfig({
@@ -11,12 +11,6 @@ module.exports = function(grunt) {
     clean: ["dist"],
 
     copy: {
-      src_to_dist: {
-        cwd: 'src',
-        expand: true,
-        src: ['**/*.ts', '!**/*.scss', '**/*.d.ts'],
-        dest: 'dist'
-      },
       lib_to_dist: {
         cwd: 'src',
         expand: true,
@@ -59,20 +53,14 @@ module.exports = function(grunt) {
       },
     },
 
-    babel: {
+    tslint: {
       options: {
-        sourceMap: true,
-        presets:  ["es2015"],
-        plugins: ['transform-es2015-modules-systemjs', "transform-es2015-for-of"],
+        // Task-specific options go here.
+        configuration: "tslint.json"
       },
-      dist: {
-        files: [{
-          cwd: 'src',
-          expand: true,
-          src: ['*.ts'],
-          dest: 'dist',
-          ext:'.ts'
-        }]
+      files: {
+          // Target-specific file lists and/or options go here.
+          src: ['src/**/*.ts'],
       },
     },
 
@@ -83,8 +71,9 @@ module.exports = function(grunt) {
         options: {
           rootDir: 'src',
           verbose: true,
-
           target: 'ES5',
+          inlineSourceMap: true,
+          inlineSources: true,
           module: 'system',
           sourceMap: true,
           declaration: true,
@@ -98,6 +87,7 @@ module.exports = function(grunt) {
     },
 
   });
-
-  grunt.registerTask('default', ['clean', 'copy:src_to_dist', 'copy:lib_to_dist', 'copy:html_to_dist', 'copy:css_to_dist', 'copy:img_to_dist', 'copy:pluginDef', 'ts:build']);
+  // tslint as first task
+  //grunt.registerTask('default', ['tslint', 'clean', 'copy:lib_to_dist', 'copy:html_to_dist', 'copy:css_to_dist', 'copy:img_to_dist', 'copy:pluginDef', 'ts:build']);
+  grunt.registerTask('default', ['clean', 'copy:lib_to_dist', 'copy:html_to_dist', 'copy:css_to_dist', 'copy:img_to_dist', 'copy:pluginDef', 'ts:build']);
 };
