@@ -17,7 +17,7 @@
     "tslint": "^5.11.0"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.108",
+    "@types/lodash": "^4.14.119",
     "@types/mathjs": "^4.4.1",
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "grunt-ts": "^6.0.0-beta.21",
