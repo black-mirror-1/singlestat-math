@@ -779,6 +779,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
+
       if (ctrl.panel.description) {
         var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
       + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
@@ -827,6 +828,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         }
 
         //drilldownTooltip.text(data.valueFormatted);
+        //drilldownTooltip.text('click to go to: ' + linkInfo.title);
+        //drilldownTooltip.text(ctrl.panel.description);
         drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
       });
     }
