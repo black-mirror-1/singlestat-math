@@ -789,9 +789,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
 
       elem.mouseleave(function() {
-        if (panel.links.length === 0) {
-          return;
-        }
         $timeout(function() {
           drilldownTooltip.detach();
         });
