@@ -30,6 +30,9 @@ declare class SingleStatMathCtrl extends MetricsPanelCtrl {
         defaultColor: string;
         thresholds: string;
         format: string;
+        tooltip: {
+            show: boolean;
+        };
         sortOrder: string;
         prefix: string;
         postfix: string;

@@ -53,6 +53,9 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     defaultColor: 'rgb(117, 117, 117)',
     thresholds: '',
     format: 'none',
+    tooltip: {
+      show: true
+    },
     sortOrder: 'asc',
     prefix: '',
     postfix: '',
@@ -69,7 +72,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     math: '',
     colorBackground: false,
     circleBackground: false,
-    valueMappingColorBackground: '#787879',
+    valueMappingColorBackground: '#767171',
     colorValue: false,
     sparkline: {
       show: false,
@@ -706,7 +709,6 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         return;
       }
       data = ctrl.data;
-
       var body = panel.gauge.show ? '' : getBigValueHtml();
       var color = '';
       if (panel.colorBackground) {
@@ -774,15 +776,19 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         linkInfo = null;
       }
     }
-    
+
     function hookupDrilldownLinkTooltip() {
       // drilldown link tooltip
-      var drilldownTooltip = $('<div id="tooltip" class="">hello</div>"');
+
+      if (ctrl.panel.description) {
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
+      + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+      } else {
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
+      + ctrl.panel.title + '</h6>No Description</div>"');
+      }
 
       elem.mouseleave(function() {
-        if (panel.links.length === 0) {
-          return;
-        }
         $timeout(function() {
           drilldownTooltip.detach();
         });
@@ -814,15 +820,19 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       });
 
       elem.mousemove(function(e) {
-        if (!panel.colorValue) {
+        if (!ctrl.panel.tooltip.show) {
           return;
         }
 
-        drilldownTooltip.text(data.valueFormatted);
+        //drilldownTooltip.text(data.valueFormatted);
+        //drilldownTooltip.text('click to go to: ' + linkInfo.title);
+        //drilldownTooltip.text(ctrl.panel.description);
         drilldownTooltip.place_tt(e.pageX, e.pageY - 50);
       });
     }
+
     hookupDrilldownLinkTooltip();
+
     this.events.on('render', function() {
       render();
       ctrl.renderingCompleted();
