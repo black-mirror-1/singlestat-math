@@ -20,7 +20,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
         for (var i = thresholds.length - 1; i >= 0; i--) {
             var aThreshold = thresholds[i];
             color = aThreshold.color;
-            if (value >= aThreshold.value) {
+            if (value >= aThreshold.displayvalue) {
                 return aThreshold.color;
             }
         }
