@@ -326,7 +326,7 @@ System.register(["lodash", "jquery", "jquery.flot", "./lib/flot/jquery.flot.gaug
                         mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[_this.panel.valueName]));
                     });
                     try {
-                        mathFunction = mathFunction.replace(new RegExp('[A-Za-z]+', 'gi'), String(0));
+                        mathFunction = mathFunction.replace(new RegExp('\\b[A-Za-z]+(?!\\()\\b', 'gi'), String(0));
                         data.value = math_1.default.eval(mathFunction);
                         data.flotpairs = this.series[0].flotpairs;
                     }

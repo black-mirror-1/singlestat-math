@@ -333,7 +333,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
     });
     try {
-      mathFunction = mathFunction.replace(new RegExp('[A-Za-z]+', 'gi'), String(0));
+      mathFunction = mathFunction.replace(new RegExp('\\b[A-Za-z]+(?!\\()\\b', 'gi'), String(0));
       data.value = math.eval(mathFunction);
       data.flotpairs = this.series[0].flotpairs;
     } catch (e) {
