@@ -88,8 +88,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       thresholdLabels: false,
     },
     sortOrderOptions: [
-      { value: 'asc', text: 'Ascending'},
-      { value: 'desc', text: 'Descending'},
+      { value: 'asc', text: 'Ascending' },
+      { value: 'desc', text: 'Descending' },
     ],
     tableColumn: '',
   };
@@ -153,10 +153,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   sortMyThreshes(control) {
-    if(this.panel.sortOrder === 'asc') {
-      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
+    this._updateThresholdValues();
+    if (this.panel.sortOrder === 'asc') {
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["displayvalue"], ["asc"]);
     } else if (this.panel.sortOrder === 'desc') {
-      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
+      control.panel.thresholds = _.orderBy(control.panel.thresholds, ["displayvalue"], ["desc"]);
     }
     this.$scope.ctrl.refresh();
   }
@@ -176,7 +177,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   onEditorAddThreshold() {
-    this.panel.thresholds.push({color: this.panel.defaultColor})
+    this.panel.thresholds.push({ color: this.panel.defaultColor })
     this.render();
   }
 
@@ -327,6 +328,59 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     return result;
   }
 
+  _doMath(mathFunction, data) {
+    this.series.forEach(element => {
+      mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
+    });
+    try {
+      mathFunction = mathFunction.replace(new RegExp('\\b[A-Za-z]+(?!\\()\\b', 'gi'), String(0));
+      data.value = math.eval(mathFunction);
+      data.flotpairs = this.series[0].flotpairs;
+    } catch (e) {
+      //Error evaluating function. Defaulting to zero.
+      data.value = 0;
+      data.flotpairs = [0, 0];
+    }
+  }
+
+  _calcDisplayValue(val) {
+    var haschars = new RegExp('[a-z]+', 'gi');
+    if (haschars.test(val)) {
+      var datatmp = { 'value': 0 };
+      this._doMath(val, datatmp);
+      return datatmp.value;
+    }
+    else {
+      return val;
+    }
+  }
+
+  _updateThresholdValues() {
+    // Set the display value on any thresholds that may need to run math function
+    for (var i = 0; i < this.panel.thresholds.length; i++) {
+      var dispval = this._calcDisplayValue(this.panel.thresholds[i].value);
+      if (dispval > this.panel.gauge.maxDisplayValue) {
+        dispval = this.panel.gauge.maxDisplayValue;
+      }
+      this.panel.thresholds[i].displayvalue = dispval;
+    }
+  }
+
+  _updateMinMaxValues() {
+    // Set the display value on any Max or Min that may need to run math function
+    // If value is undefined, use defaults until value set
+    if (this.panel.gauge.minValue != undefined) {
+      this.panel.gauge.minDisplayValue = this._calcDisplayValue(this.panel.gauge.minValue);
+    } else {
+      this.panel.gauge.minDisplayValue = 0;
+    }
+    if (this.panel.gauge.maxValue != undefined) {
+      this.panel.gauge.maxDisplayValue = this._calcDisplayValue(this.panel.gauge.maxValue);
+    } else {
+      this.panel.gauge.maxDisplayValue = 100;
+    }
+  }
+
   setValues(data) {
     data.flotpairs = [];
 
@@ -353,22 +407,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         data.valueRounded = data.value;
         data.valueFormatted = formatFunc(data.value, 0, 0);
       } else {
-        if (this.panel.math.length){
-          var mathFunction = this.panel.math;
-          this.series.forEach(element => {
-            mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
-          });
-          try {
-            mathFunction = mathFunction.replace(new RegExp('[A-za-z]+', 'gi'), String(0));
-            data.value = math.eval(mathFunction);
-            data.flotpairs = this.series[0].flotpairs;
-          } catch (e) {
-            //Error evaluating function. Defaulting to zero.
-            data.value = 0;
-            data.flotpairs = [0,0];
-          }
+        if (this.panel.math.length) {
+          this._doMath(this.panel.math, data);
         }
-        else{
+        else {
           data.value = this.series[0].stats[this.panel.valueName];
           data.flotpairs = this.series[0].flotpairs;
         }
@@ -378,9 +420,14 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         data.valueFormatted = formatFunc(data.value, decimalInfo.decimals, decimalInfo.scaledDecimals);
         data.valueRounded = kbn.roundValue(data.value, decimalInfo.decimals);
       }
+      this._updateMinMaxValues();
+
+      if (this.panel.gauge.show) {
+        this._updateThresholdValues();
+      }
 
       // Add $__name variable for using in prefix or postfix
-      if(this.series && this.series.length > 0){
+      if (this.series && this.series.length > 0) {
         data.scopedVars = _.extend({}, this.panel.scopedVars);
         data.scopedVars['__name'] = { value: this.series[0].label };
       }
@@ -558,7 +605,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       var dimension = Math.min(width, height * 1.3);
 
       ctrl.invalidGaugeRange = false;
-      if (panel.gauge.minValue > panel.gauge.maxValue) {
+      if (panel.gauge.minDisplayValue > panel.gauge.maxDisplayValue) {
         ctrl.invalidGaugeRange = true;
         return;
       }
@@ -575,15 +622,15 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       plotCanvas.css(plotCss);
 
       var thresholds = [];
-      for (var i = 0; i < panel.thresholds.length; i++) {
+      for (var i = 1; i < panel.thresholds.length; i++) {
         thresholds.push({
-          value: panel.thresholds[i].value,
-          color: panel.thresholds[i].color,
+          value: panel.thresholds[i].displayvalue,
+          color: panel.thresholds[i - 1].color,
         });
       }
       thresholds.push({
-        value: panel.gauge.maxValue,
-        color: panel.thresholds[panel.thresholds.length - 1],
+        value: panel.gauge.maxDisplayValue,
+        color: panel.thresholds[panel.thresholds.length - 1].color,
       });
 
       var bgColor = config.bootData.user.lightTheme ? 'rgb(230,230,230)' : 'rgb(38,38,38)';
@@ -600,8 +647,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         series: {
           gauges: {
             gauge: {
-              min: panel.gauge.minValue,
-              max: panel.gauge.maxValue,
+              min: panel.gauge.minDisplayValue,
+              max: panel.gauge.maxDisplayValue,
               background: { color: bgColor },
               border: { color: null },
               shadow: { show: false },
@@ -623,7 +670,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
             },
             value: {
               color: panel.colorValue ? getColorForValue(panel.thresholds, data.valueRounded) : null,
-              formatter: function() {
+              formatter: function () {
                 return getValueText();
               },
               font: {
@@ -781,20 +828,20 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       // drilldown link tooltip
 
       if (ctrl.panel.description) {
-        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
-      + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+          + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
       } else {
-        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
-      + ctrl.panel.title + '</h6>No Description</div>"');
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+          + ctrl.panel.title + '</h6>No Description</div>"');
       }
 
-      elem.mouseleave(function() {
-        $timeout(function() {
+      elem.mouseleave(function () {
+        $timeout(function () {
           drilldownTooltip.detach();
         });
       });
 
-      elem.click(function(evt) {
+      elem.click(function (evt) {
         if (!linkInfo) {
           return;
         }
@@ -811,7 +858,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         if (linkInfo.href.indexOf('http') === 0) {
           window.location.href = linkInfo.href;
         } else {
-          $timeout(function() {
+          $timeout(function () {
             $location.url(linkInfo.href);
           });
         }
@@ -819,7 +866,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         drilldownTooltip.detach();
       });
 
-      elem.mousemove(function(e) {
+      elem.mousemove(function (e) {
         if (!ctrl.panel.tooltip.show) {
           return;
         }
@@ -833,7 +880,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     hookupDrilldownLinkTooltip();
 
-    this.events.on('render', function() {
+    this.events.on('render', function () {
       render();
       ctrl.renderingCompleted();
     });
@@ -848,12 +895,12 @@ function getColorForValue(thresholds, value) {
   for (let i = thresholds.length - 1; i >= 0; i--) {
     let aThreshold = thresholds[i];
     color = aThreshold.color;
-      if (value >= aThreshold.value) {
-        return aThreshold.color;
-      }
+    if (value >= aThreshold.displayvalue) {
+      return aThreshold.color;
+    }
   }
   return color;
 }
 
-export {SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue}
+export { SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue }
 // export { SingleStatCtrl, SingleStatCtrl as PanelCtrl, getColorForValue };
