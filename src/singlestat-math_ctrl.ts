@@ -496,8 +496,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     var panel = ctrl.panel;
     var templateSrv = this.templateSrv;
     var data, linkInfo;
-    var $panelContainer = elem.find('.panel-container');
     elem = elem.find('.singlestatmath-panel');
+
+    function getPanelContainer() {
+      return elem.closest('.panel-container');
+    }
 
     function applyColoringThresholds(value, valueString) {
       if (!panel.colorValue) {
@@ -718,7 +721,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
           color = getColorForValue(panel.thresholds, data.value);
         }
         if (color) {
-          $panelContainer.css('background-color', color);
+          getPanelContainer().css('background-color', color);
           if (scope.fullscreen) {
             elem.css('background-color', color);
           } else {
@@ -726,36 +729,22 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
           }
         }
       } else {
-        $panelContainer.css('background-color', '');
+        getPanelContainer().css('background-color', '');
         elem.css('background-color', '');
         panel.circleBackground = false;
       }
+      
       // Convert to Circle
       if (panel.circleBackground) {
-        let circleHeight = $($panelContainer.height())[0] - 26;
-        let circleWidth = $($panelContainer.width())[0];
-
-        $($panelContainer).addClass('circle');
-        $panelContainer.css('background-color', '');
-
-        if (circleWidth >= circleHeight) {
-          elem.css({
-            'border-radius': 50 + '%',
-            'width': circleHeight + 'px',
-            'height': circleHeight + 'px',
-            'background-color': color
-          });
-        } else {
-          elem.css({
-            'border-radius': 50 + '%',
-            'width': circleWidth + 'px',
-            'height': circleWidth + 'px',
-            'background-color': color
-          });
-        }
+        $(getPanelContainer()).addClass('circle');
+        getPanelContainer().css('background-color', '');
+        elem.css({
+          'border-radius': 50 + '%',
+          'background-color': color
+        });
       } else {
-        $($panelContainer.removeClass('circle'));
-        elem.css({ 'border-radius': '0', width: '', height: '' });
+        $(getPanelContainer().removeClass('circle'));
+        elem.css({ 'border-radius': '0' });
       }
 
       elem.html(body);
