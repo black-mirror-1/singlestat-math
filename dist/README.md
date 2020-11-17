@@ -16,6 +16,9 @@ In the math field you can use the alias names to perform math across series.
 
 ## Changelog
 
+## 1.1.7
+* Merged [PR](https://github.com/black-mirror-1/singlestat-math/pull/29) to add new threshold model and new tooltip 
+
 ## 1.1.6
 * Merged [PR](https://github.com/black-mirror-1/singlestat-math/pull/17) to fix gauge color
 
