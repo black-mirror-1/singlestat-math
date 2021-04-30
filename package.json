@@ -6,7 +6,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "grunt": "^1.0.3",
+    "grunt": "^1.4.0",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-uglify": "^0.11.1",
@@ -21,10 +21,10 @@
     "@types/mathjs": "^4.4.1",
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "grunt-ts": "^6.0.0-beta.21",
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.1",
     "json": "^9.0.6",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.20",
     "mathjs": "^5.2.0",
-    "typescript": "^2.9.2"
+    "typescript": "^4.0.5"
   }
 }
