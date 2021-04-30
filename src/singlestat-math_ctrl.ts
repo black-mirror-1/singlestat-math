@@ -88,8 +88,8 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       thresholdLabels: false,
     },
     sortOrderOptions: [
-      { value: 'asc', text: 'Ascending'},
-      { value: 'desc', text: 'Descending'},
+      { value: 'asc', text: 'Ascending' },
+      { value: 'desc', text: 'Descending' },
     ],
     tableColumn: '',
   };
@@ -153,7 +153,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   sortMyThreshes(control) {
-    if(this.panel.sortOrder === 'asc') {
+    if (this.panel.sortOrder === 'asc') {
       control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["asc"]);
     } else if (this.panel.sortOrder === 'desc') {
       control.panel.thresholds = _.orderBy(control.panel.thresholds, ["value"], ["desc"]);
@@ -176,7 +176,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
   }
 
   onEditorAddThreshold() {
-    this.panel.thresholds.push({color: this.panel.defaultColor})
+    this.panel.thresholds.push({ color: this.panel.defaultColor })
     this.render();
   }
 
@@ -353,7 +353,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         data.valueRounded = data.value;
         data.valueFormatted = formatFunc(data.value, 0, 0);
       } else {
-        if (this.panel.math.length){
+        if (this.panel.math.length) {
           var mathFunction = this.panel.math;
           this.series.forEach(element => {
             mathFunction = mathFunction.replace(new RegExp(element.alias, 'gi'), String(element.stats[this.panel.valueName]));
@@ -365,10 +365,10 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
           } catch (e) {
             //Error evaluating function. Defaulting to zero.
             data.value = 0;
-            data.flotpairs = [0,0];
+            data.flotpairs = [0, 0];
           }
         }
-        else{
+        else {
           data.value = this.series[0].stats[this.panel.valueName];
           data.flotpairs = this.series[0].flotpairs;
         }
@@ -380,7 +380,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       }
 
       // Add $__name variable for using in prefix or postfix
-      if(this.series && this.series.length > 0){
+      if (this.series && this.series.length > 0) {
         data.scopedVars = _.extend({}, this.panel.scopedVars);
         data.scopedVars['__name'] = { value: this.series[0].label };
       }
@@ -496,8 +496,11 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
     var panel = ctrl.panel;
     var templateSrv = this.templateSrv;
     var data, linkInfo;
-    var $panelContainer = elem.find('.panel-container');
     elem = elem.find('.singlestatmath-panel');
+
+    function getPanelContainer() {
+      return elem.closest('.panel-content');
+    }
 
     function applyColoringThresholds(value, valueString) {
       if (!panel.colorValue) {
@@ -623,7 +626,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
             },
             value: {
               color: panel.colorValue ? getColorForValue(panel.thresholds, data.valueRounded) : null,
-              formatter: function() {
+              formatter: function () {
                 return getValueText();
               },
               font: {
@@ -718,44 +721,25 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
           color = getColorForValue(panel.thresholds, data.value);
         }
         if (color) {
-          $panelContainer.css('background-color', color);
-          if (scope.fullscreen) {
-            elem.css('background-color', color);
-          } else {
-            elem.css('background-color', '');
-          }
+          getPanelContainer().css('background-color', color);
+          elem.css('background-color', color);
         }
       } else {
-        $panelContainer.css('background-color', '');
+        getPanelContainer().css('background-color', color);
         elem.css('background-color', '');
         panel.circleBackground = false;
       }
       // Convert to Circle
       if (panel.circleBackground) {
-        let circleHeight = $($panelContainer.height())[0] - 26;
-        let circleWidth = $($panelContainer.width())[0];
-
-        $($panelContainer).addClass('circle');
-        $panelContainer.css('background-color', '');
-
-        if (circleWidth >= circleHeight) {
-          elem.css({
-            'border-radius': 50 + '%',
-            'width': circleHeight + 'px',
-            'height': circleHeight + 'px',
-            'background-color': color
-          });
-        } else {
-          elem.css({
-            'border-radius': 50 + '%',
-            'width': circleWidth + 'px',
-            'height': circleWidth + 'px',
-            'background-color': color
-          });
-        }
+        $(getPanelContainer()).addClass('circle');
+        getPanelContainer().css('background-color', '');
+        elem.css({
+          'border-radius': 50 + '%',
+          'background-color': color
+        });
       } else {
-        $($panelContainer.removeClass('circle'));
-        elem.css({ 'border-radius': '0', width: '', height: '' });
+        $(getPanelContainer().removeClass('circle'));
+        elem.css({ 'border-radius': '0' });
       }
 
       elem.html(body);
@@ -781,20 +765,20 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
       // drilldown link tooltip
 
       if (ctrl.panel.description) {
-        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
-      + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+          + ctrl.panel.title + '</h6>' + ctrl.panel.description + '</div>"');
       } else {
-        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">' 
-      + ctrl.panel.title + '</h6>No Description</div>"');
+        var drilldownTooltip = $('<div id="tooltip" class="" style="background:white;margin:auto;color:black;width:200px;box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);"><h6 style="color:black;">'
+          + ctrl.panel.title + '</h6>No Description</div>"');
       }
 
-      elem.mouseleave(function() {
-        $timeout(function() {
+      elem.mouseleave(function () {
+        $timeout(function () {
           drilldownTooltip.detach();
         });
       });
 
-      elem.click(function(evt) {
+      elem.click(function (evt) {
         if (!linkInfo) {
           return;
         }
@@ -811,7 +795,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         if (linkInfo.href.indexOf('http') === 0) {
           window.location.href = linkInfo.href;
         } else {
-          $timeout(function() {
+          $timeout(function () {
             $location.url(linkInfo.href);
           });
         }
@@ -819,7 +803,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
         drilldownTooltip.detach();
       });
 
-      elem.mousemove(function(e) {
+      elem.mousemove(function (e) {
         if (!ctrl.panel.tooltip.show) {
           return;
         }
@@ -833,7 +817,7 @@ class SingleStatMathCtrl extends MetricsPanelCtrl {
 
     hookupDrilldownLinkTooltip();
 
-    this.events.on('render', function() {
+    this.events.on('render', function () {
       render();
       ctrl.renderingCompleted();
     });
@@ -848,12 +832,12 @@ function getColorForValue(thresholds, value) {
   for (let i = thresholds.length - 1; i >= 0; i--) {
     let aThreshold = thresholds[i];
     color = aThreshold.color;
-      if (value >= aThreshold.value) {
-        return aThreshold.color;
-      }
+    if (value >= aThreshold.value) {
+      return aThreshold.color;
+    }
   }
   return color;
 }
 
-export {SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue}
+export { SingleStatMathCtrl, SingleStatMathCtrl as PanelCtrl, getColorForValue }
 // export { SingleStatCtrl, SingleStatCtrl as PanelCtrl, getColorForValue };
