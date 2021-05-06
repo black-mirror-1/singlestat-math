@@ -22,7 +22,7 @@
     "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
     "grunt-ts": "^6.0.0-beta.21",
     "jquery": "^3.3.1",
-    "json": "^9.0.6",
+    "json": "^10.0.0",
     "lodash": "^4.17.11",
     "mathjs": "^5.2.0",
     "typescript": "^2.9.2"
